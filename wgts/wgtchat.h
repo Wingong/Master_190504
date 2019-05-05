@@ -7,6 +7,7 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include "serial.h"
+#include "handler.h"
 
 class WgtChat : public QWidget
 {
@@ -20,6 +21,7 @@ public:
 
     Serial		*serRecv;
     Serial		*serSend;
+    Handler		*handler;
 
 public slots:
     void sltSend(void);
