@@ -9,7 +9,8 @@ WgtChat::WgtChat(QWidget *parent)
       edit(new QTextEdit(this)),
       send(new QPushButton("发送",this)),
       serRecv(new Serial),
-      serSend(new Serial)
+      serSend(new Serial),
+      handler(new Handler)
 {
     hist->setReadOnly(true);
     connect(send,SIGNAL(clicked(bool)),this,SLOT(sltSend()));
