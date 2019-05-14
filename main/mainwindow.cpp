@@ -9,13 +9,13 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       wgtTab(new QTabWidget(this)),
+      settings(new MySettings("settings.ini")),
       wgtSerial(new WgtSerial(this)),
       wgtChat(new WgtChat(this)),
-      wgtSettings(new WgtSettings(this)),
+      wgtSettings(new WgtSettings(this))
 //      menuBarMain(this->menuBar()),
 //      menuFile(new QMenu("文件(&F)", menuBarMain)),
 //      menuEdit(new QMenu("编辑(&E)", menuBarMain)),
-      settings(new MySettings("settings.ini"))
 {
 //    menuBarMain->addMenu(menuFile);
 //    menuBarMain->addMenu(menuEdit);
@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setGeometry(100,100,600,400);
 
     this->wgtTab->addTab(wgtSerial,"串口助手");
-    this->wgtTab->addTab(wgtChat,"聊天");
+    this->wgtTab->addTab(wgtChat,"传输");
     this->wgtTab->addTab(wgtSettings,"设置");
     QPalette pal(wgtSerial->palette());
     pal.setColor(QPalette::Background,0xf0f0f0);
@@ -63,6 +63,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         {
             if(wgtTab->currentIndex() ==  0)
                 wgtSerial->sltRefresh();
+            else if(wgtTab->currentIndex() == 1)
+                wgtChat->sltRefresh();
         }
         return bResult;
     }

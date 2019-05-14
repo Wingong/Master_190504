@@ -1,9 +1,7 @@
 SOURCES +=\
     $$PWD/mysettings.cpp\
-    $$PWD/serial.cpp\
-    $$PWD/handler.cpp
+    $$PWD/serial.cpp
 
 HEADERS +=\
     $$PWD/mysettings.h\
-    $$PWD/serial.h\
-    $$PWD/handler.h
+    $$PWD/serial.h

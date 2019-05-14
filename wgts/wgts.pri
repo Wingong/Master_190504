@@ -1,9 +1,9 @@
 SOURCES +=\
-        wgts\wgtchat.cpp\
-        wgts\wgtserial.cpp\
-        wgts\wgtsettings.cpp\
+    $$PWD/wgtchat.cpp\
+    $$PWD/wgtserial.cpp\
+    $$PWD/wgtsettings.cpp\
 
 HEADERS +=\
-        wgts\wgtchat.h\
-        wgts\wgtserial.h\
-        wgts\wgtsettings.h\
+    $$PWD/wgtchat.h\
+    $$PWD/wgtserial.h\
+    $$PWD/wgtsettings.h\
