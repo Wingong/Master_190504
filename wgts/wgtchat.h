@@ -5,9 +5,14 @@
 #include <QWidget>
 #include <QDateTime>
 #include <QTextEdit>
+#include <QLabel>
 #include <QPushButton>
+#include <QQueue>
+#include <QTimer>
+#include "mycombobox.h"
+#include "recvthread.h"
+#include "sendthread.h"
 #include "serial.h"
-#include "handler.h"
 
 class WgtChat : public QWidget
 {
@@ -17,14 +22,28 @@ public:
 
     QTextEdit	*hist;
     QTextEdit	*edit;
-    QPushButton	*send;
+    QLabel		*labPort;
+    MyComboBox	*cbxPort;
+    QPushButton	*btnRefresh;
+    QPushButton	*btnToggle;
+    QPushButton	*btnSend;
+    QPushButton	*btnClr;
 
-    Serial		*serRecv;
+
+    //Serial		*serRecv;
     Serial		*serSend;
-    Handler		*handler;
+    QQueue<u8>	queSend;
+    QQueue<u8>	queRecv;
 
+    RecvThread	*th1;
+    SendThread	*th2;
 public slots:
+    void sltRefresh(void);
+    void sltRecv(void);
+    void sltToggle(void);
     void sltSend(void);
+    void sltS(int id);
+    void sltReadBuf(void);
     void resizeEvent(QResizeEvent *event);
 };
 

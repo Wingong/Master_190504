@@ -8,8 +8,5 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    SendThread *th1 = new SendThread;
-    th1->start();
-
     return a.exec();
 }

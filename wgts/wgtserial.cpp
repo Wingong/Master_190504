@@ -18,10 +18,6 @@ WgtSerial::WgtSerial(QWidget *parent)
       cbxBaud(new MyComboBox(1, this)),
       cbxStop(new MyComboBox(2, this)),
       cbxExam(new MyComboBox(3, this)),
-      txtRecv(new QTextEdit(this)),
-      txtSend(new QTextEdit(this)),
-      btnToggle(new QPushButton("打开",this)),
-      btnRefresh(new QPushButton("刷新",this)),
       labRecv(new QLabel("接收区",this)),
       labSend(new QLabel("发送区",this)),
       rbtRecHex(new QRadioButton("HEX",this)),
@@ -32,6 +28,10 @@ WgtSerial::WgtSerial(QWidget *parent)
       btgSend(new QButtonGroup(this)),
       btnRecv(new QPushButton("清除",this)),
       btnSend(new QPushButton("清除",this)),
+      txtRecv(new QTextEdit(this)),
+      txtSend(new QTextEdit(this)),
+      btnToggle(new QPushButton("打开",this)),
+      btnRefresh(new QPushButton("刷新",this)),
       btnSenMsg(new QPushButton("发送",this)),
       xTendSerial(new Serial)
 {

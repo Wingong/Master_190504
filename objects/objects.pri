@@ -1,5 +1,5 @@
-SOURCES +=\
-        objects\mycombobox.cpp\
+SOURCES +=
+    $$PWD/mycombobox.cpp\
 
 HEADERS +=\
-        objects\mycombobox.h\
+    $$PWD/mycombobox.h\

@@ -1,5 +1,7 @@
 SOURCES +=\
-        threads\sendthread.cpp\
+    $$PWD/sendthread.cpp \
+    $$PWD/recvthread.cpp
 
 HEADERS +=\
-        threads\sendthread.h\
+    $$PWD/sendthread.h \
+    $$PWD/recvthread.h
