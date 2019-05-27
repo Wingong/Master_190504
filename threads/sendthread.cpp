@@ -26,7 +26,8 @@ void SendThread::run()
             if(cmd == 0)
             {
                 u8 ch(queSend->dequeue());
-                if((ch == 0xfd || ch == 0xfc) && queSend->size() > 0)
+                        //如果队列中是ACK或ERR字节，且队列中还有其他元素（ID）
+                if((ch == ACK || ch == ERR) && queSend->size() > 0)
                 {
                     querea[240].clear();
                     querea[240].enqueue(ch);
@@ -34,13 +35,14 @@ void SendThread::run()
                     cmd = 1;
                     emit ok(240);
                 }
+                        //队列满
                 else if(querea[id].size() == 240)
                 {
                     querea[id].push_front(xo);
                     querea[id].push_front(id);
                     querea[id].push_front(240);
-                    querea[id].push_front(0xff);
-                    querea[id].enqueue(0xfe);
+                    querea[id].push_front(BEG);
+                    querea[id].enqueue(END);
                     cmd = 1;
                     emit ok(id);
                     trans[id] ++;
@@ -49,6 +51,7 @@ void SendThread::run()
                             id = -1;
                     xo = 0;
                 }
+                        //裁决！
                 else if(queSend->size() == 0 && ch < 240)
                 {
                     querea[id].enqueue(ch);
@@ -56,8 +59,8 @@ void SendThread::run()
                     querea[id].push_front(xo);
                     querea[id].push_front(id);
                     querea[id].push_front(querea[id].size()-2);
-                    querea[id].push_front(0xff);
-                    querea[id].enqueue(0xfe);
+                    querea[id].push_front(BEG);
+                    querea[id].enqueue(END);
                     cmd = 1;
                     emit ok(id);
                     trans[id] ++;

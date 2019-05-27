@@ -5,8 +5,7 @@
 #include <QThread>
 #include <QQueue>
 #include <QString>
-
-typedef unsigned char u8;
+#include "user.h"
 
 class RecvThread : public QThread
 {
@@ -14,13 +13,13 @@ class RecvThread : public QThread
 public:
     RecvThread(QObject *parent);
     void run();
-    QQueue<u8>	*queSend;
-    QQueue<u8>	*queRecv;
-    QString		txtRecv;
-    bool		ena;
+    QQueue<u8>  *queSend;
+    QQueue<u8>  *queRecv;
+    QString     txtRecv;
+    bool        ena;
 signals:
-    void recv(void);
-    void oper(int id,bool retry);
+    void recv(void);                //接收完成信号
+    void oper(int id,bool retry);   //接收ACK帧或ERR帧的操作信号
 };
 
 #endif // RECVTHREAD_H

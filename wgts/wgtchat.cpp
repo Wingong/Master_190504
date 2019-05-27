@@ -22,6 +22,7 @@ WgtChat::WgtChat(QWidget *parent)
       th2(new SendThread(this))
 {
     (*cbxPort) << serSend->name;
+                //
     th1->queRecv = th2->queRecv = &queRecv;
     th1->queSend = th2->queSend = &queSend;
     hist->setReadOnly(true);
@@ -68,6 +69,7 @@ void WgtChat::sltToggle()
     {
         th1->ena = false;
         th2->ena = false;
+        cbxPort->setEnabled(true);
         btnRefresh->setEnabled(true);
         btnSend->setEnabled(false);
         btnToggle->setText("打开");
@@ -88,6 +90,7 @@ void WgtChat::sltToggle()
         serSend->setFlowControl(QSerialPort::NoFlowControl);
         serSend->setParity(QSerialPort::NoParity);
         serSend->setStopBits(QSerialPort::OneStop);
+        cbxPort->setEditable(false);
         btnRefresh->setEnabled(false);
         btnSend->setEnabled(true);
         btnToggle->setText("关闭");

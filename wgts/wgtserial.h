@@ -10,6 +10,7 @@
 #include <QButtonGroup>
 #include <windows.h>
 #include <dbt.h>
+#include "user.h"
 #include "mycombobox.h"
 #include "serial.h"
 
@@ -20,33 +21,33 @@ public:
     explicit WgtSerial(QWidget *parent = nullptr);
     ~WgtSerial();
 
-    QLabel		*labPort;
-    QLabel		*labBaud;
-    QLabel		*labStop;
-    QLabel		*labExam;
-    MyComboBox	*cbxPort;
-    MyComboBox	*cbxBaud;
-    MyComboBox	*cbxStop;
-    MyComboBox	*cbxExam;
+    QLabel      *labPort;
+    QLabel      *labBaud;
+    QLabel      *labStop;
+    QLabel      *labExam;
+    MyComboBox  *cbxPort;
+    MyComboBox  *cbxBaud;
+    MyComboBox  *cbxStop;
+    MyComboBox  *cbxExam;
 
-    QLabel		*labRecv;
-    QLabel		*labSend;
+    QLabel      *labRecv;
+    QLabel      *labSend;
     QRadioButton*rbtRecHex;
     QRadioButton*rbtRecTxt;
     QRadioButton*rbtSenHex;
     QRadioButton*rbtSenTxt;
     QButtonGroup*btgRecv;
     QButtonGroup*btgSend;
-    QPushButton	*btnRecv;
-    QPushButton	*btnSend;
-    QTextEdit	*txtRecv;
-    QTextEdit	*txtSend;
+    QPushButton *btnRecv;
+    QPushButton *btnSend;
+    QTextEdit   *txtRecv;
+    QTextEdit   *txtSend;
 
-    QPushButton	*btnToggle;
-    QPushButton	*btnRefresh;
-    QPushButton	*btnSenMsg;
+    QPushButton *btnToggle;
+    QPushButton *btnRefresh;
+    QPushButton *btnSenMsg;
 
-    Serial		*xTendSerial;
+    Serial      *xTendSerial;
 
 
 public slots:

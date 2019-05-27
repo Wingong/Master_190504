@@ -1,3 +1,10 @@
+/**
+  *********************
+  * MySettings类头文件 *
+  *********************
+  */
+
+
 #ifndef MYSETTINGS_H
 #define MYSETTINGS_H
 
