@@ -44,3 +44,6 @@ INCLUDEPATH  +=\
 		objects\
 		threads\
 		wgts\
+
+HEADERS += \
+    user.h

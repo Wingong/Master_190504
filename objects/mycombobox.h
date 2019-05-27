@@ -11,7 +11,7 @@ class MyComboBox : public QComboBox
 private:
     QStringList comlist;
 public:
-    int index = -1;
+    int index = -1;         //多选框序号
     MyComboBox(QWidget *parent)
         : QComboBox(parent)
     { }
@@ -19,6 +19,7 @@ public:
         : QComboBox(parent),
           index(init_ind)
     { }
+    //重载，流式输入
     MyComboBox & operator << (const QString &text)
     { this->addItem(text); comlist << text; return *this; }
     MyComboBox & operator << (const QStringList &textlist)

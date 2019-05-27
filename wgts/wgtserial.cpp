@@ -87,33 +87,33 @@ WgtSerial::WgtSerial(QWidget *parent)
 
 WgtSerial::~WgtSerial()
 {
-    delete  	labPort;
-    delete		labBaud;
-    delete		labStop;
-    delete		labExam;
-    delete		cbxPort;
-    delete		cbxBaud;
-    delete		cbxStop;
-    delete		cbxExam;
-    delete		btnToggle;
-    delete		txtRecv;
-    delete		txtSend;
-    delete		btnRefresh;
+    delete      labPort;
+    delete      labBaud;
+    delete      labStop;
+    delete      labExam;
+    delete      cbxPort;
+    delete      cbxBaud;
+    delete      cbxStop;
+    delete      cbxExam;
+    delete      btnToggle;
+    delete      txtRecv;
+    delete      txtSend;
+    delete      btnRefresh;
     delete      xTendSerial;
 
-    labPort		= nullptr;
-    labBaud		= nullptr;
-    labStop		= nullptr;
-    labExam		= nullptr;
-    cbxPort		= nullptr;
-    cbxBaud		= nullptr;
-    cbxStop		= nullptr;
-    cbxExam		= nullptr;
-    txtRecv		= nullptr;
-    txtSend		= nullptr;
-    btnToggle	= nullptr;
-    btnRefresh	= nullptr;
-    xTendSerial	= nullptr;
+    labPort     = nullptr;
+    labBaud     = nullptr;
+    labStop     = nullptr;
+    labExam     = nullptr;
+    cbxPort     = nullptr;
+    cbxBaud     = nullptr;
+    cbxStop     = nullptr;
+    cbxExam     = nullptr;
+    txtRecv     = nullptr;
+    txtSend     = nullptr;
+    btnToggle   = nullptr;
+    btnRefresh  = nullptr;
+    xTendSerial = nullptr;
 }
 
 void WgtSerial::sltComboClick(int cbx)
@@ -282,9 +282,8 @@ void WgtSerial::sltRecTog(int index,bool b)
         {
             for(QChar i:src)
             {
-                char j;
-                str += (char)((j=i.toLatin1()/16)<10?j+48:j+55);
-                str += (char)((j=i.toLatin1()%16)<10?j+48:j+55);
+                str += (char)HEX(i.toLatin1()/16);
+                str += (char)HEX(i.toLatin1()%16);
                 str += ' ';
             }
         }
@@ -349,9 +348,9 @@ void WgtSerial::sltReadBuf()
     {
         QByteArray src = xTendSerial->readAll();
         QString str = txtRecv->toPlainText();
-        for(unsigned char i:src)
+        for(u8 i:src)
         {
-            unsigned char j;
+            u8 j;
             qDebug("%x",i);
             str += (char)((j=i/16)<10?j+48:j+55);
             str += (char)((j=i%16)<10?j+48:j+55);
