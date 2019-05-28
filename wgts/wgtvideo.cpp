@@ -11,16 +11,26 @@
 WgtVideo::WgtVideo(QWidget *parent)
     : QWidget(parent),
       dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),opened(false),
-      labPort(new QLabel("选择串口",this)),
+      labPort(new QLabel("蓝牙串口",this)),
       labPaint(new QLabel(this)),
       labFPS(new QLabel("帧率：",this)),
       labInfo(new QLabel("输出信息：",this)),
       txtFPS(new QLineEdit(this)),
       txtInfo(new QTextEdit(this)),
+      txtData(new QTextEdit(this)),
       cbxPort(new MyComboBox(0,this)),
       btnRefresh(new QPushButton("刷新",this)),
       btnToggle(new QPushButton("打开",this)),
       btnClear(new QPushButton("清除",this)),
+      labSPort(new QLabel("链路串口",this)),
+      cbxSPort(new MyComboBox(1,this)),
+      rbtDirR(new QRadioButton("接收",this)),
+      rbtDirS(new QRadioButton("发送",this)),
+      rbtDatVideo(new QRadioButton("视频",this)),
+      rbtDatVoice(new QRadioButton("语音",this)),
+      btgDir(new QButtonGroup(this)),
+      btgDat(new QButtonGroup(this)),
+      btnSToggle(new QPushButton("打开",this)),
       serRecv(new Serial),
       serSend(new Serial),
       drawTimer(new QTimer(this)),
@@ -29,6 +39,7 @@ WgtVideo::WgtVideo(QWidget *parent)
       thread(new TestThread(mat,queRecv,this))
 {
     (*cbxPort) << serRecv->name;
+    (*cbxSPort) << serSend->name;
     labPort->resize(80,25);
     labPaint->move(20,20);
     labPaint->installEventFilter(this);
@@ -37,14 +48,34 @@ WgtVideo::WgtVideo(QWidget *parent)
     txtFPS->resize(80,25);
     txtFPS->setText("0");
     txtFPS->setReadOnly(true);
+    txtData->move(20,20);
+    txtData->setEnabled(false);
+    txtData->setVisible(false);
     //txtInfo->setReadOnly(true);
     cbxPort->resize(90,25);
     btnRefresh->resize(80,25);
     btnToggle->resize(80,25);
+    btnToggle->setEnabled(false);
     btnClear->resize(80,25);
+    labSPort->resize(80,25);
+    cbxSPort->resize(90,25);
+    rbtDirR->resize(80,25);
+    rbtDirS->resize(80,25);
+    rbtDatVideo->resize(80,25);
+    rbtDatVoice->resize(80,25);
+    btgDir->addButton(rbtDirR);
+    btgDir->addButton(rbtDirS);
+    btgDat->addButton(rbtDatVideo);
+    btgDat->addButton(rbtDatVoice);
+    rbtDirR->setChecked(true);
+    rbtDatVideo->setChecked(true);
+    btnSToggle->resize(80,25);
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(btnClear,SIGNAL(clicked(bool)),this,SLOT(sltClear()));
+    connect(btnSToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
+    connect(btgDir,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDirTog(int,bool)));
+    connect(btgDat,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDatTog(int,bool)));
     connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     serRecv->setBaudRate(115200);
     serRecv->setFlowControl(QSerialPort::NoFlowControl);
@@ -87,42 +118,85 @@ void WgtVideo::genRects()
 void WgtVideo::sltRefresh()
 {
     serRecv->refresh();
+    serSend->refresh();
     cbxPort->clear();
+    cbxSPort->clear();
     (*cbxPort) << serRecv->name;
+    (*cbxSPort) << serSend->name;
     qDebug() << "refreshed\n";
 }
 
 void WgtVideo::sltToggle()
 {
-    if(opened)
+    QPushButton *act = qobject_cast<QPushButton *>(sender());
+    if(act == btnToggle)
     {
-        fpsTimer->stop();
-        //thread->ena = false;
-        btnRefresh->setEnabled(true);
-        btnToggle->setText("打开");
-        serRecv->close();
-        opened = false;
+        if(opened)
+        {
+            fpsTimer->stop();
+            //thread->ena = false;
+            cbxPort->setEnabled(true);
+            btnRefresh->setEnabled(true);
+            btnToggle->setText("打开");
+            serRecv->close();
+            opened = false;
+        }
+        else
+        {
+            serRecv->setPortName(cbxPort->currentText());
+            if(!serRecv->open(QIODevice::ReadWrite))
+            {
+                QMessageBox::critical(this,"错误","打开失败！",QMessageBox::Ok);
+                return;
+            }
+            status = 0;
+            thread->ena = true;
+            //thread->start();
+            serRecv->setBaudRate(115200);
+            serRecv->setDataBits(QSerialPort::Data8);
+            serRecv->setFlowControl(QSerialPort::NoFlowControl);
+            serRecv->setParity(QSerialPort::NoParity);
+            serRecv->setStopBits(QSerialPort::OneStop);
+            cbxPort->setEnabled(false);
+            btnRefresh->setEnabled(false);
+            btnToggle->setText("关闭");
+            opened = true;
+            fpsTimer->start();
+        }
     }
     else
     {
-        serRecv->setPortName(cbxPort->currentText());
-        if(!serRecv->open(QIODevice::ReadWrite))
+        if(btnSToggle->text() == "关闭")
         {
-            QMessageBox::critical(this,"错误","打开失败！",QMessageBox::Ok);
-            return;
+            cbxSPort->setEnabled(true);
+            btnRefresh->setEnabled(true);
+            rbtDirR->setEnabled(true);
+            rbtDirS->setEnabled(true);
+            rbtDatVideo->setEnabled(true);
+            rbtDatVoice->setEnabled(true);
+            btnToggle->setTabletTracking("打开");
         }
-        status = 0;
-        thread->ena = true;
-        //thread->start();
-        serRecv->setBaudRate(115200);
-        serRecv->setDataBits(QSerialPort::Data8);
-        serRecv->setFlowControl(QSerialPort::NoFlowControl);
-        serRecv->setParity(QSerialPort::NoParity);
-        serRecv->setStopBits(QSerialPort::OneStop);
-        btnRefresh->setEnabled(false);
-        btnToggle->setText("关闭");
-        opened = true;
-        fpsTimer->start();
+        else
+        {
+            serSend->setPortName(cbxSPort->currentText());
+            if(!serSend->open(QIODevice::ReadWrite))
+            {
+                QMessageBox::critical(this,"错误","打开失败！",QMessageBox::Ok);
+                return;
+            }
+            cbxSPort->setEnabled(false);
+            btnRefresh->setEnabled(false);
+            rbtDirR->setEnabled(false);
+            rbtDirS->setEnabled(false);
+            rbtDatVideo->setEnabled(false);
+            rbtDatVoice->setEnabled(false);
+            serSend->setBaudRate(115200);
+            serSend->setDataBits(QSerialPort::Data8);
+            serSend->setFlowControl(QSerialPort::NoFlowControl);
+            serSend->setParity(QSerialPort::NoParity);
+            serSend->setStopBits(QSerialPort::OneStop);
+            btnSToggle->setText("关闭");
+        }
     }
 }
 
@@ -136,36 +210,10 @@ void WgtVideo::sltClear()
 
 void WgtVideo::sltRecv()
 {
-    //disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     int prev_status(0);
     while(queRecv.size())
     {
         u8 ch(queRecv.dequeue());
-        //if(queRecv.size() > 1 && ch == 0x01 && queRecv[1] == 0xfe)
-        //{
-        //    if(status == 1)
-        //        txtInfo->append("Expected end!\n");
-        //    index = 0;
-        //    queRecv.dequeue();
-        //    queRecv.dequeue();
-        //    qDebug() << "start\n";
-        //    status = 1;
-        //    continue;
-        //}
-        //else if(queRecv.size() > 1 && queRecv[0] == 0xfe && queRecv[1] == 0x01)
-        //{
-        //    if(index == WIDTH*HEIGHT)
-        //        emit repaint();
-        //    else
-        //        txtInfo->append("Length wrong!\n");
-        //    status = 0;
-        //    queRecv.dequeue();
-        //    queRecv.dequeue();
-        //    qDebug() << "end1" << '\t' << index << '\n';
-        //    continue;
-        //}
-        //else
-        //{
         recv_count ++;
         if(index == 13512)
             qDebug() << "Break!";
@@ -286,19 +334,111 @@ void WgtVideo::sltRecv()
         }
         //}
     }
-    //connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
 }
 
 void WgtVideo::sltReadBuf()
 {
-    QByteArray src = serRecv->readAll();
-    for(auto i:src)
+    if(rbtDatVideo->isChecked() && rbtDirS->isChecked())
     {
-        queRecv.enqueue(i);
-        queSend.enqueue(i);
+        QByteArray src = serRecv->readAll();
+        for(auto i:src)
+        {
+            queRecv.enqueue(i);
+            queSend.enqueue(i);
+        }
+        emit readOK();
+        sltRecv();
     }
-    emit readOK();
-    sltRecv();
+    else if(rbtDatVideo->isChecked() && rbtDirR->isChecked())
+    {
+        QByteArray src = serSend->readAll();
+        for(auto i:src)
+        {
+            queRecv.enqueue(i);
+            queSend.enqueue(i);
+        }
+        emit readOK();
+        sltRecv();
+    }
+    else if(rbtDatVoice->isChecked() && rbtDirS->isChecked())
+    {
+        QByteArray src = serRecv->readAll();
+        QString txt(txtData->toPlainText());
+        for(auto i:src)
+        {
+            queSend.enqueue(i);
+            txt.append(HEX(i/16));
+            txt.append(HEX(i%16));
+            txt.append(32);
+        }
+        txtData->setText(txt);
+        emit readOK();
+    }
+    else
+    {
+        QByteArray src = serSend->readAll();
+        QString txt(txtData->toPlainText());
+        for(auto i:src)
+        {
+            queSend.enqueue(i);
+            txt.append(HEX(i/16));
+            txt.append(HEX(i%16));
+            txt.append(32);
+        }
+        emit readOK();
+    }
+}
+
+void WgtVideo::sltDirTog(int index,bool b)
+{
+    if(b)
+    {
+        if(index == -2)
+        {
+            if(rbtDatVideo->isChecked())
+            {
+                btnToggle->setEnabled(false);
+            }
+            else
+            {
+                btnToggle->setEnabled(true);
+            }
+        }
+        else
+        {
+            btnToggle->setEnabled(true);
+        }
+    }
+}
+
+void WgtVideo::sltDatTog(int index,bool b)
+{
+    if(b)
+    {
+        if(index == -2)
+        {
+            if(rbtDirR->isChecked())
+            {
+                btnToggle->setEnabled(false);
+            }
+            else
+            {
+                btnToggle->setEnabled(true);
+            }
+            labPaint->setEnabled(true);
+            labPaint->setVisible(true);
+            txtData->setEnabled(false);
+            txtData->setVisible(false);
+        }
+        else
+        {
+            labPaint->setEnabled(false);
+            labPaint->setVisible(false);
+            txtData->setEnabled(true);
+            txtData->setVisible(true);
+            btnToggle->setEnabled(true);
+        }
+    }
 }
 
 void WgtVideo::sltSend()
@@ -335,18 +475,25 @@ bool WgtVideo::eventFilter(QObject *watched, QEvent *event)
 void WgtVideo::resizeEvent(QResizeEvent *event)
 {
     QSize siz(event->size());
-    labPort->move(20,siz.height()-40);
-    labPaint->resize(siz.width()-190,siz.height()-80);
-    labFPS->move(siz.width()-150,20);
-    txtFPS->move(siz.width()-100,20);
-    labInfo->move(siz.width()-150,60);
-    txtInfo->setGeometry(siz.width()-150,92,130,siz.height()-150);
-    cbxPort->move(90,siz.height()-40);
-    btnRefresh->move(190,siz.height()-40);
-    btnToggle->move(280,siz.height()-40);
-    btnClear->move(370,siz.height()-40);
+    labPort->move(20,siz.height()-65);
+    labPaint->resize(siz.width()-273,siz.height()-127);
+    labFPS->move(siz.width()-233,20);
+    txtFPS->move(siz.width()-183,20);
+    labInfo->move(siz.width()-233,60);
+    txtInfo->setGeometry(siz.width()-233,92,213,siz.height()-152);
+    txtData->resize(siz.width()-273,siz.height()-127);
+    cbxPort->move(90,siz.height()-65);
+    btnRefresh->move(20,siz.height()-100);
+    btnToggle->move(190,siz.height()-65);
+    btnClear->move(siz.width()-100,siz.height()-40);
+    labSPort->move(20,siz.height()-30);
+    cbxSPort->move(90,siz.height()-30);
+    btnSToggle->move(190,siz.height()-30);
+    rbtDirR->move(110,siz.height()-100);
+    rbtDirS->move(175,siz.height()-100);
+    rbtDatVideo->move(280,siz.height()-65);
+    rbtDatVoice->move(280,siz.height()-30);
     genRects();
-    qDebug() << labPaint->width() << '\t' << labPaint->height();
 }
 
 #ifdef DEBUG

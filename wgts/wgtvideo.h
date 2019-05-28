@@ -12,6 +12,8 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QDebug>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 #include "user.h"
 #include "mycombobox.h"
@@ -38,10 +40,23 @@ public:
     QLabel      *labInfo;
     QLineEdit   *txtFPS;
     QTextEdit   *txtInfo;
+    QTextEdit   *txtData;
     MyComboBox  *cbxPort;
     QPushButton *btnRefresh;
     QPushButton *btnToggle; //开/关串口
     QPushButton *btnClear;
+
+    QLabel      *labSPort;
+    QLineEdit   *txtAddr;
+    MyComboBox  *cbxSPort;
+    QRadioButton*rbtDirR;
+    QRadioButton*rbtDirS;
+    QRadioButton*rbtDatVideo;
+    QRadioButton*rbtDatVoice;
+    QButtonGroup*btgDir;
+    QButtonGroup*btgDat;
+    QPushButton *btnSToggle;
+
 
     Serial      *serRecv;
     Serial      *serSend;
@@ -91,6 +106,8 @@ public slots:
     void sltRecv(void);
     void sltSend(void);
     void sltReadBuf(void);
+    void sltDirTog(int index, bool b);
+    void sltDatTog(int index, bool b);
     void updateBoard();
 #ifdef DEBUG
     void fps(void);
