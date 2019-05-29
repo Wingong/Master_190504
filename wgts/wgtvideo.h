@@ -18,7 +18,7 @@
 #include "user.h"
 #include "mycombobox.h"
 #include "serial.h"
-#include "testthread.h"
+#include "thdimagesend.h"
 
 class WgtVideo : public QWidget
 {
@@ -32,6 +32,8 @@ public:
     int         cnt;
     int         index,status;
     int         recv_count;
+    u8          addr[2];
+    bool        send_busy;
     bool        opened;
 
     QLabel      *labPort;
@@ -47,6 +49,7 @@ public:
     QPushButton *btnClear;
 
     QLabel      *labSPort;
+    QLabel      *labAddr;
     QLineEdit   *txtAddr;
     MyComboBox  *cbxSPort;
     QRadioButton*rbtDirR;
@@ -58,18 +61,20 @@ public:
     QPushButton *btnSToggle;
 
 
-    Serial      *serRecv;
-    Serial      *serSend;
+    Serial      *serBt;
+    Serial      *serCh;
     QQueue<u8>  queRecv;
     QQueue<u8>  queSend;
 
     QTimer      *drawTimer;
     QTimer      *fpsTimer;
+    QTimer      *delayTimer;
 
     QVector<QVector<bool> >
                 mat;
-    TestThread  *thread;
+    ThdImageSend  *thread;
     QRect       rects[WIDTH][HEIGHT];
+    u8          ques[WIDTH*HEIGHT/8+4];
 
     void        genRects(void);
 
@@ -98,6 +103,7 @@ private:
             return false;
         }
     }
+    void msleep(int msec);
 
 public slots:
     void sltRefresh(void);

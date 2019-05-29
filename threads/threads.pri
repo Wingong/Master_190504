@@ -1,9 +1,9 @@
 SOURCES +=\
-    $$PWD/sendthread.cpp \
-    $$PWD/recvthread.cpp \
-    $$PWD/testthread.cpp
+    $$PWD/thdimagesend.cpp \
+    $$PWD/thdchatsend.cpp \
+    $$PWD/thdchatrecv.cpp
 
 HEADERS +=\
-    $$PWD/sendthread.h \
-    $$PWD/recvthread.h \
-    $$PWD/testthread.h
+    $$PWD/thdimagesend.h \
+    $$PWD/thdchatsend.h \
+    $$PWD/thdchatrecv.h

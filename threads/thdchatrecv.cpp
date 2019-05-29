@@ -1,13 +1,13 @@
-#include "recvthread.h"
+#include "thdchatrecv.h"
 #include <QDebug>
 
-RecvThread::RecvThread(QObject *parent)
+ThdChatRecv::ThdChatRecv(QObject *parent)
     : QThread(parent),
       ena(false)
 {
 }
 
-void RecvThread::run()
+void ThdChatRecv::run()
 {
     int count(0);       //数据长度
     int id=(0);         //数据ID

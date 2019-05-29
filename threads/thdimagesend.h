@@ -9,7 +9,7 @@
 #include "user.h"
 #include "serial.h"
 
-class TestThread : public QThread
+class ThdImageSend : public QThread
 {
     Q_OBJECT
 public:
@@ -18,7 +18,7 @@ public:
     int     sta = 0;
     QVector<QVector<bool> >&mart;
     QQueue<u8>  &queRecv;
-    TestThread(QVector<QVector<bool> >&mat,QQueue<u8>&inQueRecv,QObject *parent);
+    ThdImageSend(QVector<QVector<bool> >&mat,QQueue<u8>&inQueRecv,QObject *parent);
     void run();
 signals:
     void rep();

@@ -8,11 +8,11 @@
 #include <QTimer>
 #include "user.h"
 
-class SendThread : public QThread
+class ThdChatSend : public QThread
 {
     Q_OBJECT
 public:
-    SendThread(QObject *parent);
+    ThdChatSend(QObject *parent);
     void run(void);
     QQueue<u8>  *queSend;
     QQueue<u8>  *queRecv;

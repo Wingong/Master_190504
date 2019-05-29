@@ -7,11 +7,11 @@
 #include <QString>
 #include "user.h"
 
-class RecvThread : public QThread
+class ThdChatRecv : public QThread
 {
     Q_OBJECT
 public:
-    RecvThread(QObject *parent);
+    ThdChatRecv(QObject *parent);
     void run();
     QQueue<u8>  *queSend;
     QQueue<u8>  *queRecv;

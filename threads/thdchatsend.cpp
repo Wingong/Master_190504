@@ -1,8 +1,8 @@
 #include <QDateTime>
 #include <QDebug>
-#include "sendthread.h"
+#include "thdchatsend.h"
 
-SendThread::SendThread(QObject *parent)
+ThdChatSend::ThdChatSend(QObject *parent)
     : QThread(parent),
       cmd(0),
       ena(false),
@@ -12,7 +12,7 @@ SendThread::SendThread(QObject *parent)
         trans[i] = 0;
 }
 
-void SendThread::run()
+void ThdChatSend::run()
 {
     ena = true;
     int id(0);
@@ -87,7 +87,7 @@ void SendThread::run()
     }
 }
 
-void SendThread::sltOper(int id, bool retry)
+void ThdChatSend::sltOper(int id, bool retry)
 {
     if(!retry)
     {
