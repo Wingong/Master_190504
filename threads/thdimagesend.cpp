@@ -1,50 +1,56 @@
 #include "thdimagesend.h"
 #include <QDebug>
 
-ThdImageSend::ThdImageSend(QVector<QVector<bool> >&mat, QQueue<u8> &inQueRecv, QObject *parent)
+ThdImageSend::ThdImageSend(u8 *queSend, u8 *address, QByteArray &arri, QObject *parent)
     : QThread(parent),
-      mart(mat),
-      queRecv(inQueRecv)
+      send_busy(false),
+      ques(queSend),
+      addr(address),
+      arr(arri)
 {
 
 }
 
 void ThdImageSend::run()
 {
-    while(ena)
+    send_busy = true;
+//    Serial *serTemp(rbtDirR->isChecked()?serBt:serCh);
+//    if(queSend.size()<200)
+//        return;
+//    qDebug() << queSend.size();
+//    QByteArray arr;
+//    for(int i=0;i<queSend.size();i++)
+//    {
+//        arr.append(queSend.dequeue());
+//    }
+//    arr.push_front(0x17);
+//    arr.push_front(addr[1]);
+//    arr.push_front(addr[0]);
+//    serTemp->write(arr);
+//    queSend.clear();
+//    qDebug() << "send";
+    arr.clear();
+    int time=WIDTH*HEIGHT/8/200;
+    int count = 0;
+    for(int i=0;i<time;i++)
     {
-        if(queRecv.size() > 0)
-        {
-            u8 ch(queRecv.dequeue());
-            if(ch == 0x01 || ch == 0xfe)
-            {
-                if(queRecv.size() > 0)
-                {
-                    u8 chn(queRecv.dequeue());
-                    if(ch == 0x01)
-                    {
-                        //if(chn == 0xfe)
-                        //    sta = 1;
-                        //else
-
-                    }
-                    else if(ch == 0xfe && chn == 0x01)
-                    {
-                        sta = 0;
-                    }
-                }
-            }
-        }
-        for(int i=0;i<WIDTH;i++)
-        {
-            for(int j=0;j<HEIGHT;j++)
-            {
-                mart[i][j] = !((i*WIDTH+j+cnt)%30);
-            }
-        }
-        cnt ++;
-        emit rep();
-        qDebug() << "rep";
-        msleep(10);
+        arr.push_front(0x17);
+        arr.push_front(addr[1]);
+        arr.push_front(addr[0]);
+        for(int j=0;j<200;j++)
+            arr.append(ques[count++]);
+        emit readOK();
+        msleep(200);
     }
+    arr.append(addr[0]);
+    arr.append(addr[1]);
+    arr.append(0x17);
+    while(count != WIDTH*HEIGHT/8+4)
+    {
+        arr.append(ques[count++]);
+    }
+    qDebug() << "arr: " << arr.size();
+    emit readOK();
+    msleep(200);
+    send_busy = false;
 }
