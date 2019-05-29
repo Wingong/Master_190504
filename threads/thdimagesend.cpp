@@ -1,7 +1,7 @@
-#include "testthread.h"
+#include "thdimagesend.h"
 #include <QDebug>
 
-TestThread::TestThread(QVector<QVector<bool> >&mat, QQueue<u8> &inQueRecv, QObject *parent)
+ThdImageSend::ThdImageSend(QVector<QVector<bool> >&mat, QQueue<u8> &inQueRecv, QObject *parent)
     : QThread(parent),
       mart(mat),
       queRecv(inQueRecv)
@@ -9,7 +9,7 @@ TestThread::TestThread(QVector<QVector<bool> >&mat, QQueue<u8> &inQueRecv, QObje
 
 }
 
-void TestThread::run()
+void ThdImageSend::run()
 {
     while(ena)
     {
