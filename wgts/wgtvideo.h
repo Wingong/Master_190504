@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QByteArray>
 
 #include "user.h"
 #include "mycombobox.h"
@@ -33,7 +34,6 @@ public:
     int         index,status;
     int         recv_count;
     u8          addr[2];
-    bool        send_busy;
     bool        opened;
 
     QLabel      *labPort;
@@ -63,23 +63,23 @@ public:
 
     Serial      *serBt;
     Serial      *serCh;
+    Serial      *serSend;
     QQueue<u8>  queRecv;
     QQueue<u8>  queSend;
+    QByteArray  arr;
 
     QTimer      *drawTimer;
     QTimer      *fpsTimer;
-    QTimer      *delayTimer;
 
     QVector<QVector<bool> >
                 mat;
-    ThdImageSend  *thread;
+    ThdImageSend*thread;
     QRect       rects[WIDTH][HEIGHT];
     u8          ques[WIDTH*HEIGHT/8+4];
 
     void        genRects(void);
 
 signals:
-    void        readOK();
 
 private:
     inline bool store(u8 ch)

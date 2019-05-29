@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QQueue>
 #include <QRegion>
+#include <QByteArray>
 #include "user.h"
 #include "serial.h"
 
@@ -15,13 +16,16 @@ class ThdImageSend : public QThread
 public:
     u8 cnt;
     bool    ena = false;
+    bool    send_busy;
     int     sta = 0;
-    QVector<QVector<bool> >&mart;
-    QQueue<u8>  &queRecv;
-    ThdImageSend(QVector<QVector<bool> >&mat,QQueue<u8>&inQueRecv,QObject *parent);
-    void run();
+    u8      *ques;
+    u8      *addr;
+    QByteArray &arr;
+    //QQueue<u8>  &queRecv;
+    ThdImageSend(u8 *queSend, u8 *address, QByteArray &arri,QObject *parent);
+    void    run();
 signals:
-    void rep();
+    void    readOK();
 };
 
 #endif // TESTTHREAD_H

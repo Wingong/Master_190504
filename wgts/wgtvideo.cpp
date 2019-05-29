@@ -13,7 +13,7 @@
 
 WgtVideo::WgtVideo(QWidget *parent)
     : QWidget(parent),
-      dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),send_busy(0),opened(false),
+      dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),opened(false),
       labPort(new QLabel("蓝牙串口",this)),
       labPaint(new QLabel(this)),
       labFPS(new QLabel("帧率：",this)),
@@ -40,9 +40,8 @@ WgtVideo::WgtVideo(QWidget *parent)
       serCh(new Serial),
       drawTimer(new QTimer(this)),
       fpsTimer(new QTimer(this)),
-      delayTimer(new QTimer(this)),
       mat(WIDTH, QVector<bool>(HEIGHT,false)),
-      thread(new ThdImageSend(mat,queRecv,this))
+      thread(new ThdImageSend(ques,addr,arr,this))
 {
     ques[0] = 0x01;
     ques[1] = 0xfe;
@@ -84,6 +83,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     rbtDirR->setChecked(true);
     rbtDatVideo->setChecked(true);
     btnSToggle->resize(80,25);
+    serSend=serCh;
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(btnClear,SIGNAL(clicked(bool)),this,SLOT(sltClear()));
@@ -97,8 +97,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     serBt->setParity(QSerialPort::NoParity);
     serBt->setStopBits(QSerialPort::OneStop);
 
-    connect(thread,SIGNAL(rep()),this,SLOT(update()));
-    connect(this,SIGNAL(readOK()),this,SLOT(sltSend()));
+    connect(thread,SIGNAL(readOK()),this,SLOT(sltSend()));
     drawTimer->setInterval(10);
 #ifdef DEBUG
     connect(fpsTimer,SIGNAL(timeout()),this,SLOT(fps()));
@@ -128,13 +127,6 @@ void WgtVideo::genRects()
                                 (int)(dh));
         }
     }
-}
-
-void WgtVideo::msleep(int msec)
-{
-    QTime dieTime = QTime::currentTime().addMSecs(msec);
-    while(QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
 }
 
 void WgtVideo::sltRefresh()
@@ -202,6 +194,7 @@ void WgtVideo::sltToggle()
             serCh->close();
             if(rbtDirS->isChecked())
                 opened = false;
+            txtAddr->setEnabled(false);
         }
         else
         {
@@ -227,6 +220,7 @@ void WgtVideo::sltToggle()
             }
             addr[0] = id>>8;
             addr[1] = id&0xff;
+            txtAddr->setEnabled(false);
             cbxSPort->setEnabled(false);
             btnRefresh->setEnabled(false);
             rbtDirR->setEnabled(false);
@@ -249,6 +243,12 @@ void WgtVideo::sltClear()
 {
     index = 0;
     txtInfo->setText("");
+    for(int i=0;i<WIDTH;i++)
+    {
+        for(int j=0;j<HEIGHT;j++)
+            mat[i][j] = 0;
+    }
+    emit repaint();
     recv_count = 0;
     status = 0;
 }
@@ -299,8 +299,8 @@ void WgtVideo::sltRecv()
             if(ch == 0x01 && queRecv.size()>1 && queRecv[0] == 0x01 && queRecv[1] == 0xfe)
             {
                 emit repaint();
-                if(!send_busy)
-                    emit readOK();
+                if(!thread->send_busy && serSend->isOpen())
+                    thread->start();
                 if(index != WIDTH*HEIGHT)
                     txtInfo->append("Length wrong!\n");
                 status = 1;
@@ -313,8 +313,8 @@ void WgtVideo::sltRecv()
             else if(ch == 0x01 && index > WIDTH*HEIGHT-32)
             {
                 emit repaint();
-                if(!send_busy)
-                    emit readOK();
+                if(!thread->send_busy && serSend->isOpen())
+                    thread->start();
                 if(index != WIDTH*HEIGHT)
                     txtInfo->append("Length wrong!\n");
                 status = 0;
@@ -466,11 +466,13 @@ void WgtVideo::sltDirTog(int index,bool b)
                 btnToggle->setEnabled(true);
             }
             txtAddr->setEnabled(false);
+            serSend = serBt;
         }
         else
         {
             btnToggle->setEnabled(true);
             txtAddr->setEnabled(true);
+            serSend = serCh;
         }
     }
 }
@@ -507,46 +509,8 @@ void WgtVideo::sltDatTog(int index,bool b)
 
 void WgtVideo::sltSend()
 {
-    send_busy = true;
-//    Serial *serTemp(rbtDirR->isChecked()?serBt:serCh);
-//    if(queSend.size()<200)
-//        return;
-//    qDebug() << queSend.size();
-//    QByteArray arr;
-//    for(int i=0;i<queSend.size();i++)
-//    {
-//        arr.append(queSend.dequeue());
-//    }
-//    arr.push_front(0x17);
-//    arr.push_front(addr[1]);
-//    arr.push_front(addr[0]);
-//    serTemp->write(arr);
-//    queSend.clear();
-//    qDebug() << "send";
-    Serial *serTemp(rbtDirR->isChecked()?serBt:serCh);
-    QByteArray arr;
-    int time=WIDTH*HEIGHT/8/200;
-    int count = 0;
-    for(int i=0;i<time;i++)
-    {
-        arr.push_front(0x17);
-        arr.push_front(addr[1]);
-        arr.push_front(addr[0]);
-        for(int j=0;j<200;j++)
-            arr.append(ques[count++]);
-        serTemp->write(arr);
-        arr.clear();
-    }
-    arr.append(addr[0]);
-    arr.append(addr[1]);
-    arr.append(0x17);
-    while(count != WIDTH*HEIGHT/8+4)
-    {
-        arr.append(ques[count++]);
-    }
-    qDebug() << "arr: " << arr.size();
-    serTemp->write(arr);
-    send_busy = false;
+    serSend->write(arr);
+    arr.clear();
 }
 
 void WgtVideo::updateBoard()
