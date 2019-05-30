@@ -13,7 +13,7 @@
 
 WgtVideo::WgtVideo(QWidget *parent)
     : QWidget(parent),
-      dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),opened(false),
+      dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),opened(false),automode(false),
       labPort(new QLabel("蓝牙串口",this)),
       labPaint(new QLabel(this)),
       labFPS(new QLabel("帧率：",this)),
@@ -35,6 +35,7 @@ WgtVideo::WgtVideo(QWidget *parent)
       rbtDatVoice(new QRadioButton("语音",this)),
       btgDir(new QButtonGroup(this)),
       btgDat(new QButtonGroup(this)),
+      chbAuto(new QCheckBox("自动模式",this)),
       btnSToggle(new QPushButton("打开",this)),
       serBt(new Serial),
       serCh(new Serial),
@@ -82,7 +83,9 @@ WgtVideo::WgtVideo(QWidget *parent)
     btgDat->addButton(rbtDatVoice);
     rbtDirR->setChecked(true);
     rbtDatVideo->setChecked(true);
+    chbAuto->resize(80,25);
     btnSToggle->resize(80,25);
+    serRecv=serBt;
     serSend=serCh;
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
@@ -90,6 +93,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     connect(btnSToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(btgDir,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDirTog(int,bool)));
     connect(btgDat,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDatTog(int,bool)));
+    connect(chbAuto,SIGNAL(toggled(bool)),this,SLOT(sltAutoTog(bool)));
     connect(serBt,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     connect(serCh,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     serBt->setBaudRate(115200);
@@ -131,12 +135,22 @@ void WgtVideo::genRects()
 
 void WgtVideo::sltRefresh()
 {
-    serBt->refresh();
-    serCh->refresh();
-    cbxPort->clear();
-    cbxSPort->clear();
-    (*cbxPort) << serBt->name;
-    (*cbxSPort) << serCh->name;
+    if(!serBt->isOpen())
+    {
+        serBt->refresh();
+        QString str(cbxPort->currentText());
+        cbxPort->clear();
+        (*cbxPort) << serBt->name;
+        cbxPort->setCurrentText(str);
+    }
+    if(!serCh->isOpen())
+    {
+        serCh->refresh();
+        QString str(cbxSPort->currentText());
+        cbxSPort->clear();
+        (*cbxSPort) << serCh->name;
+        cbxSPort->setCurrentText(str);
+    }
     qDebug() << "refreshed\n";
 }
 
@@ -369,7 +383,6 @@ void WgtVideo::sltRecv()
                     continue;
                 }
             }
-
             //qDebug() << ch << '\t' << index;
             if(index < WIDTH*HEIGHT)
             {
@@ -451,6 +464,32 @@ void WgtVideo::sltReadBuf()
     }
 }
 
+void WgtVideo::sltAutoRead()
+{
+    QByteArray read_array(serRecv->readAll());
+    if(auto_dat == 0)
+    {
+        if(read_array.size() == 3 && read_array[0] == (char)0xFF && read_array[1] == (char)0xCC)
+        {
+            if(read_array[2] == (char)1)
+            {
+                rbtDatVideo->setChecked(true);
+                auto_dat = 1;
+            }
+            else if(read_array[2] == (char)2)
+            {
+                rbtDatVoice->setChecked(true);
+                auto_dat = 2;
+            }
+            else
+                qDebug() << "Error!";
+        }
+    }
+    else if(auto_dat == 1)
+    {}
+    else if(auto_dat == 2)
+}
+
 void WgtVideo::sltDirTog(int index,bool b)
 {
     if(b)
@@ -466,12 +505,14 @@ void WgtVideo::sltDirTog(int index,bool b)
                 btnToggle->setEnabled(true);
             }
             txtAddr->setEnabled(false);
+            serRecv = serCh;
             serSend = serBt;
         }
         else
         {
             btnToggle->setEnabled(true);
             txtAddr->setEnabled(true);
+            serRecv = serBt;
             serSend = serCh;
         }
     }
@@ -507,9 +548,31 @@ void WgtVideo::sltDatTog(int index,bool b)
     }
 }
 
+void WgtVideo::sltAutoTog(bool b)
+{
+    automode = b;
+    auto_dir = rbtDirS->isChecked();
+    auto_dat = 0;
+    rbtDirR->setEnabled(!automode);
+    rbtDirS->setEnabled(!automode);
+    rbtDatVideo->setEnabled(!automode);
+    rbtDatVoice->setEnabled(!automode);
+    if(automode)
+    {
+        disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
+        connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltAutoRead()));
+    }
+    else
+    {
+        disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltAutoRead()));
+        connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
+    }
+}
+
 void WgtVideo::sltSend()
 {
-    serSend->write(arr);
+    if(serSend->isOpen())
+        serSend->write(arr);
     arr.clear();
 }
 
@@ -555,6 +618,7 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
     btnRefresh->move(20,siz.height()-100);
     btnToggle->move(190,siz.height()-65);
     btnClear->move(siz.width()-100,siz.height()-40);
+    chbAuto->move(siz.width()-190,siz.height()-40);
     labSPort->move(20,siz.height()-30);
     labAddr->move(245,siz.height()-100);
     txtAddr->move(285,siz.height()-100);

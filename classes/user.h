@@ -6,6 +6,10 @@
 #define HEIGHT 120
 #define WIDTH 160
 
+#include <QString>
+#include <QVector>
+#include <QStringList>
+
 typedef unsigned char u8;
 
 enum Cmds
@@ -25,6 +29,13 @@ enum Status
     AOP = 5,
     EOP = 7,
     TRS = 0xf0
+};
+
+class User
+{
+private:
+public:
+    static bool stringSort(int numIndex, QStringList &src);
 };
 
 #endif // USER_H

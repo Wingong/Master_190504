@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QCheckBox>
 #include <QByteArray>
 
 #include "user.h"
@@ -32,9 +33,12 @@ public:
     int         tx;
     int         cnt;
     int         index,status;
+    bool        auto_dir;
+    int         auto_dat;
     int         recv_count;
     u8          addr[2];
     bool        opened;
+    bool        automode;
 
     QLabel      *labPort;
     QLabel      *labPaint;
@@ -58,11 +62,13 @@ public:
     QRadioButton*rbtDatVoice;
     QButtonGroup*btgDir;
     QButtonGroup*btgDat;
+    QCheckBox   *chbAuto;
     QPushButton *btnSToggle;
 
 
     Serial      *serBt;
     Serial      *serCh;
+    Serial      *serRecv;
     Serial      *serSend;
     QQueue<u8>  queRecv;
     QQueue<u8>  queSend;
@@ -82,28 +88,6 @@ public:
 signals:
 
 private:
-    inline bool store(u8 ch)
-    {
-        if(index < WIDTH*HEIGHT)
-        {
-            for(int i=0;i<8;i++)
-            {
-                mat[index%WIDTH][index/WIDTH] = ch & 0x80;
-                ch <<= 1;
-                index ++;
-            }
-            return true;
-        }
-        else
-        {
-            status = 0;
-            txtInfo->append("Too much data!\n");
-            index = 0;
-            status = 0;
-            return false;
-        }
-    }
-    void msleep(int msec);
 
 public slots:
     void sltRefresh(void);
@@ -112,8 +96,10 @@ public slots:
     void sltRecv(void);
     void sltSend(void);
     void sltReadBuf(void);
+    void sltAutoRead(void);
     void sltDirTog(int index, bool b);
     void sltDatTog(int index, bool b);
+    void sltAutoTog(bool b);
     void updateBoard();
 #ifdef DEBUG
     void fps(void);
