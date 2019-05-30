@@ -143,9 +143,14 @@ void WgtSerial::sltComboClick(int cbx)
 
 void WgtSerial::sltRefresh(void)
 {
-    xTendSerial->refresh();
-    cbxPort->clear();
-    (*cbxPort) << xTendSerial->name;
+    if(!xTendSerial->isOpen())
+    {
+        xTendSerial->refresh();
+        QString str(cbxPort->currentText());
+        cbxPort->clear();
+        (*cbxPort) << xTendSerial->name;
+        cbxPort->setCurrentText(str);
+    }
     qDebug() << "refreshed\n";
 }
 
@@ -343,11 +348,11 @@ void WgtSerial::sltSenTog(int index,bool b)
 void WgtSerial::sltReadBuf()
 {
     if(rbtRecTxt->isChecked())
-        txtRecv->setText(txtRecv->toPlainText()+xTendSerial->readAll());
+        txtRecv->insertPlainText(xTendSerial->readAll());
     else
     {
         QByteArray src = xTendSerial->readAll();
-        QString str = txtRecv->toPlainText();
+        QString str;
         for(u8 i:src)
         {
             u8 j;
@@ -356,7 +361,7 @@ void WgtSerial::sltReadBuf()
             str += (char)((j=i%16)<10?j+48:j+55);
             str += ' ';
         }
-        txtRecv->setText(str);
+        txtRecv->insertPlainText(str);
     }
 }
 

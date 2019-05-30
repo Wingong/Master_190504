@@ -11,6 +11,7 @@
 #include <QSerialPortInfo>
 #include <QString>
 #include <QStringList>
+#include "user.h"
 
 class Serial : public QSerialPort
 {

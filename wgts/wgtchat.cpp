@@ -58,9 +58,14 @@ WgtChat::WgtChat(QWidget *parent)
 
 void WgtChat::sltRefresh(void)
 {
-    serSend->refresh();
-    cbxPort->clear();
-    (*cbxPort) << serSend->name;
+    if(!serSend->isOpen())
+    {
+        serSend->refresh();
+        QString str(cbxPort->currentText());
+        cbxPort->clear();
+        (*cbxPort) << serSend->name;
+        cbxPort->setCurrentText(str);
+    }
     qDebug() << "refreshed\n";
 }
 
