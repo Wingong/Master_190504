@@ -5,7 +5,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <windows.h>
@@ -40,8 +40,8 @@ public:
     QButtonGroup*btgSend;
     QPushButton *btnRecv;
     QPushButton *btnSend;
-    QTextEdit   *txtRecv;
-    QTextEdit   *txtSend;
+    QPlainTextEdit*txtRecv;
+    QPlainTextEdit*txtSend;
 
     QPushButton *btnToggle;
     QPushButton *btnRefresh;

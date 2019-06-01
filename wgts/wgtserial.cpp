@@ -28,8 +28,8 @@ WgtSerial::WgtSerial(QWidget *parent)
       btgSend(new QButtonGroup(this)),
       btnRecv(new QPushButton("清除",this)),
       btnSend(new QPushButton("清除",this)),
-      txtRecv(new QTextEdit(this)),
-      txtSend(new QTextEdit(this)),
+      txtRecv(new QPlainTextEdit(this)),
+      txtSend(new QPlainTextEdit(this)),
       btnToggle(new QPushButton("打开",this)),
       btnRefresh(new QPushButton("刷新",this)),
       btnSenMsg(new QPushButton("发送",this)),
@@ -204,12 +204,12 @@ void WgtSerial::sltClose(void)
 
 void WgtSerial::sltRecClr()
 {
-    txtRecv->setText("");
+    txtRecv->setPlainText("");
 }
 
 void WgtSerial::sltSenClr()
 {
-    txtSend->setText("");
+    txtSend->setPlainText("");
 }
 
 void WgtSerial::sltSenMsg()
@@ -265,7 +265,7 @@ void WgtSerial::sltRecTog(int index,bool b)
                 {
                     QMessageBox::critical(this,"错误","Hex格式错误！",QMessageBox::Ok);
                     rbtRecHex->setChecked(true);
-                    txtRecv->setText(src);
+                    txtRecv->setPlainText(src);
                     return;
                 }
                 else if(i == ' ' && count)
@@ -292,7 +292,7 @@ void WgtSerial::sltRecTog(int index,bool b)
                 str += ' ';
             }
         }
-        txtRecv->setText(str);
+        txtRecv->setPlainText(str);
     }
 }
 
@@ -313,7 +313,7 @@ void WgtSerial::sltSenTog(int index,bool b)
                 {
                     QMessageBox::critical(this,"错误","Hex格式错误！",QMessageBox::Ok);
                     rbtSenHex->setChecked(true);
-                    txtSend->setText(src);
+                    txtSend->setPlainText(src);
                     return;
                 }
                 else if(i == ' ' && count)
@@ -341,7 +341,7 @@ void WgtSerial::sltSenTog(int index,bool b)
                 str += ' ';
             }
         }
-        txtSend->setText(str);
+        txtSend->setPlainText(str);
     }
 }
 
