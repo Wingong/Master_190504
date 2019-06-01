@@ -74,11 +74,11 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         //PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
         if(msg->message == WM_DEVICECHANGE && msg->wParam >= DBT_DEVICEARRIVAL)
         {
-            if(wgtTab->currentIndex() ==  0)
+            //if(wgtTab->currentIndex() ==  0)
                 wgtSerial->sltRefresh();
-            else if(wgtTab->currentIndex() == 1)
+            //else if(wgtTab->currentIndex() == 1)
                 wgtChat->sltRefresh();
-            else if(wgtTab->currentIndex() == 2)
+            //else if(wgtTab->currentIndex() == 2)
                 wgtVideo->sltRefresh();
         }
         return bResult;

@@ -40,7 +40,7 @@ void ThdImageSend::run()
         for(int j=0;j<200;j++)
             arr.append(ques[count++]);
         emit readOK();
-        msleep(200);
+        msleep(400);
     }
     arr.append(addr[0]);
     arr.append(addr[1]);
@@ -51,6 +51,6 @@ void ThdImageSend::run()
     }
     qDebug() << "arr: " << arr.size();
     emit readOK();
-    msleep(200);
+    msleep(400);
     send_busy = false;
 }

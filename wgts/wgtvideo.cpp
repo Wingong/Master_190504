@@ -83,7 +83,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     btgDat->addButton(rbtDatVoice);
     rbtDirR->setChecked(true);
     rbtDatVideo->setChecked(true);
-    chbAuto->resize(80,25);
+    chbAuto->resize(100,25);
     btnSToggle->resize(80,25);
     serRecv=serBt;
     serSend=serCh;
@@ -169,6 +169,8 @@ void WgtVideo::sltToggle()
             serBt->close();
             if(rbtDirR->isChecked())
                 opened = false;
+            if(btnSToggle->text()=="打开" && (rbtDatVoice->isChecked() || rbtDirS->isChecked()))
+                txtAddr->setEnabled(true);
         }
         else
         {
@@ -209,6 +211,8 @@ void WgtVideo::sltToggle()
             if(rbtDirS->isChecked())
                 opened = false;
             txtAddr->setEnabled(false);
+            if(btnToggle->text()=="打开" && (rbtDatVoice->isChecked() || rbtDirS->isChecked()))
+                txtAddr->setEnabled(true);
         }
         else
         {
@@ -467,8 +471,9 @@ void WgtVideo::sltReadBuf()
 void WgtVideo::sltAutoRead()
 {
     QByteArray read_array(serRecv->readAll());
-    if(auto_dat == 0)
+    switch(auto_dat)
     {
+    case 0:
         if(read_array.size() == 3 && read_array[0] == (char)0xFF && read_array[1] == (char)0xCC)
         {
             if(read_array[2] == (char)1)
@@ -480,14 +485,39 @@ void WgtVideo::sltAutoRead()
             {
                 rbtDatVoice->setChecked(true);
                 auto_dat = 2;
+                qDebug() << "Auto mode 2";
             }
             else
                 qDebug() << "Error!";
         }
+        break;
+    case 1:
+        if(read_array[0] == (char)0x01 && read_array[1] == (char)0xfe)
+        {
+            auto_dat = 3;
+            index = 0;
+            for(int i=2;i<read_array.size();i++)
+            {}
+        }
+        else
+            txtInfo->append("Error: wrong data");
+        break;
+
+    case 2:
+        if(auto_dir == true)
+        {
+            read_array.push_front(0x17);
+            read_array.push_front(addr[1]);
+            read_array.push_front(addr[0]);
+        }
+        if(serSend->isOpen())
+            serSend->write(read_array);
+        auto_dat = 0;
+        break;
+    case 3:
+        break;
+
     }
-    else if(auto_dat == 1)
-    {}
-    else if(auto_dat == 2)
 }
 
 void WgtVideo::sltDirTog(int index,bool b)
@@ -618,7 +648,7 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
     btnRefresh->move(20,siz.height()-100);
     btnToggle->move(190,siz.height()-65);
     btnClear->move(siz.width()-100,siz.height()-40);
-    chbAuto->move(siz.width()-190,siz.height()-40);
+    chbAuto->move(siz.width()-200,siz.height()-40);
     labSPort->move(20,siz.height()-30);
     labAddr->move(245,siz.height()-100);
     txtAddr->move(285,siz.height()-100);
