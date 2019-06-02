@@ -3,12 +3,15 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QFrame>
 
 class WgtNet : public QWidget
 {
     Q_OBJECT
 public:
     explicit WgtNet(QWidget *parent = nullptr);
+
+    QFrame      *frame;
 
 signals:
 

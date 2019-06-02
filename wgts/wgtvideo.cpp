@@ -85,8 +85,8 @@ WgtVideo::WgtVideo(QWidget *parent)
     rbtDatVideo->setChecked(true);
     chbAuto->resize(100,25);
     btnSToggle->resize(80,25);
-    serRecv=serBt;
-    serSend=serCh;
+    serRecv=serCh;
+    serSend=serBt;
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(btnClear,SIGNAL(clicked(bool)),this,SLOT(sltClear()));
@@ -96,7 +96,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     connect(chbAuto,SIGNAL(toggled(bool)),this,SLOT(sltAutoTog(bool)));
     connect(serBt,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     connect(serCh,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
-    serBt->setBaudRate(115200);
+    serBt->setBaudRate(230400);
     serBt->setFlowControl(QSerialPort::NoFlowControl);
     serBt->setParity(QSerialPort::NoParity);
     serBt->setStopBits(QSerialPort::OneStop);
@@ -183,7 +183,7 @@ void WgtVideo::sltToggle()
             status = 0;
             thread->ena = true;
             //thread->start();
-            serBt->setBaudRate(115200);
+            serBt->setBaudRate(230400);
             serBt->setDataBits(QSerialPort::Data8);
             serBt->setFlowControl(QSerialPort::NoFlowControl);
             serBt->setParity(QSerialPort::NoParity);
@@ -192,8 +192,8 @@ void WgtVideo::sltToggle()
             btnRefresh->setEnabled(false);
             btnToggle->setText("关闭");
             fpsTimer->start();
-            if(rbtDirR->isChecked())
-                opened = true;
+            //if(rbtDirR->isChecked())
+            //    opened = true;
         }
     }
     else
@@ -208,8 +208,8 @@ void WgtVideo::sltToggle()
             rbtDatVoice->setEnabled(true);
             btnSToggle->setText("打开");
             serCh->close();
-            if(rbtDirS->isChecked())
-                opened = false;
+            //if(rbtDirS->isChecked())
+            //    opened = false;
             txtAddr->setEnabled(false);
             if(btnToggle->text()=="打开" && (rbtDatVoice->isChecked() || rbtDirS->isChecked()))
                 txtAddr->setEnabled(true);
@@ -245,14 +245,14 @@ void WgtVideo::sltToggle()
             rbtDirS->setEnabled(false);
             rbtDatVideo->setEnabled(false);
             rbtDatVoice->setEnabled(false);
-            serCh->setBaudRate(115200);
+            serCh->setBaudRate(230400);
             serCh->setDataBits(QSerialPort::Data8);
             serCh->setFlowControl(QSerialPort::NoFlowControl);
             serCh->setParity(QSerialPort::NoParity);
             serCh->setStopBits(QSerialPort::OneStop);
             btnSToggle->setText("关闭");
-            if(rbtDirS->isChecked())
-                opened = true;
+            //if(rbtDirS->isChecked())
+            //    opened = true;
         }
     }
 }
@@ -266,7 +266,7 @@ void WgtVideo::sltClear()
         for(int j=0;j<HEIGHT;j++)
             mat[i][j] = 0;
     }
-    emit repaint();
+    repaint();
     recv_count = 0;
     status = 0;
 }
@@ -316,7 +316,7 @@ void WgtVideo::sltRecv()
         case 3:
             if(ch == 0x01 && queRecv.size()>1 && queRecv[0] == 0x01 && queRecv[1] == 0xfe)
             {
-                emit repaint();
+                repaint();
                 if(!thread->send_busy && serSend->isOpen())
                     thread->start();
                 if(index != WIDTH*HEIGHT)
@@ -330,7 +330,7 @@ void WgtVideo::sltRecv()
             }
             else if(ch == 0x01 && index > WIDTH*HEIGHT-32)
             {
-                emit repaint();
+                repaint();
                 if(!thread->send_busy && serSend->isOpen())
                     thread->start();
                 if(index != WIDTH*HEIGHT)
@@ -411,22 +411,9 @@ void WgtVideo::sltRecv()
 
 void WgtVideo::sltReadBuf()
 {
-    if(rbtDatVideo->isChecked() && rbtDirS->isChecked())
+    if(rbtDatVideo->isChecked())
     {
-        QByteArray src = serBt->readAll();
-        for(auto i:src)
-            queRecv.enqueue(i);
-        if(opened)
-        {
-            //for(auto i:src)
-            //    queSend.enqueue(i);
-            //emit readOK();
-        }
-        sltRecv();
-    }
-    else if(rbtDatVideo->isChecked() && rbtDirR->isChecked())
-    {
-        QByteArray src = serCh->readAll();
+        QByteArray src = serRecv->readAll();
         for(auto i:src)
             queRecv.enqueue(i);
         sltRecv();
@@ -441,12 +428,12 @@ void WgtVideo::sltReadBuf()
             txt.append(HEX(i%16));
             txt.append(32);
         }*/
-        if(opened)
-        {
-            //for(auto i:src)
-            //    queSend.enqueue(i);
-            //emit readOK();
-        }
+        //if(opened)
+        //{
+        //    //for(auto i:src)
+        //    //    queSend.enqueue(i);
+        //    //emit readOK();
+        //}
         //txtData->setText(txt);
     }
     else
@@ -459,12 +446,12 @@ void WgtVideo::sltReadBuf()
         //    txt.append(HEX(i%16));
         //    txt.append(32);
         //}
-        if(opened)
-        {
-            //for(auto i:src)
-            //    queSend.enqueue(i);
-            //emit readOK();
-        }
+        //if(opened)
+        //{
+        //    //for(auto i:src)
+        //    //    queSend.enqueue(i);
+        //    //emit readOK();
+        //}
     }
 }
 

@@ -13,6 +13,8 @@
 #include "wgtchat.h"
 #include "wgtvideo.h"
 #include "wgtsettings.h"
+#include "wgtespat.h"
+#include "wgtnet.h"
 #include "mysettings.h"
 //#include <QMenuBar>
 //#include <QMenu>
@@ -41,6 +43,7 @@ public:
     WgtSerial	*wgtSerial;		//串口窗体
     WgtChat		*wgtChat;		//通信窗体
     WgtVideo    *wgtVideo;      //视频窗体
+    WgtNet      *wgtNet;
     WgtSettings	*wgtSettings;   //设置窗体（无内容）
 
 public slots:

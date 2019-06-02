@@ -4,7 +4,7 @@
 #define HEX(X) ((X)<10?(X)+48:(X)+55)
 #define DEBUG
 #define HEIGHT 120
-#define WIDTH 160
+#define WIDTH  160
 
 #include <QString>
 #include <QVector>

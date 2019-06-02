@@ -30,27 +30,29 @@ void ThdImageSend::run()
 //    queSend.clear();
 //    qDebug() << "send";
     arr.clear();
-    int time=WIDTH*HEIGHT/8/200;
-    int count = 0;
-    for(int i=0;i<time;i++)
-    {
-        arr.push_front(0x17);
-        arr.push_front(addr[1]);
-        arr.push_front(addr[0]);
-        for(int j=0;j<200;j++)
-            arr.append(ques[count++]);
-        emit readOK();
-        msleep(400);
-    }
-    arr.append(addr[0]);
-    arr.append(addr[1]);
-    arr.append(0x17);
-    while(count != WIDTH*HEIGHT/8+4)
-    {
-        arr.append(ques[count++]);
-    }
+    //int time=WIDTH*HEIGHT/8/200;
+    //int count = 0;
+    for(int i=0;i<WIDTH*HEIGHT/8+4;i++)
+        arr.push_back(ques[i]);
+    //for(int i=0;i<time;i++)
+    //{
+    //    arr.push_front(0x17);
+    //    arr.push_front(addr[1]);
+    //    arr.push_front(addr[0]);
+    //    for(int j=0;j<200;j++)
+    //        arr.append(ques[count++]);
+    //    emit readOK();
+    //    msleep(150);
+    //}
+    //arr.append(addr[0]);
+    //arr.append(addr[1]);
+    //arr.append(0x17);
+    //while(count != WIDTH*HEIGHT/8+4)
+    //{
+    //    arr.append(ques[count++]);
+    //}
     qDebug() << "arr: " << arr.size();
     emit readOK();
-    msleep(400);
+    msleep(300);
     send_busy = false;
 }
