@@ -48,7 +48,7 @@ WgtChat::WgtChat(QWidget *parent)
     connect(th1,SIGNAL(oper(int,bool)),th2,SLOT(sltOper(int,bool)));
     connect(btnClr,SIGNAL(clicked(bool)),hist,SLOT(clear()));
     connect(btnClr,SIGNAL(clicked(bool)),edit,SLOT(clear()));
-    serSend->setBaudRate(115200);
+    serSend->setBaudRate(230400);
     serSend->setDataBits(QSerialPort::Data8);
     serSend->setFlowControl(QSerialPort::NoFlowControl);
     serSend->setParity(QSerialPort::NoParity);
@@ -113,7 +113,7 @@ void WgtChat::sltToggle()
         addr[1] = id&0xff;
         th1->start();
         th2->start();
-        serSend->setBaudRate(115200);
+        serSend->setBaudRate(230400);
         serSend->setDataBits(QSerialPort::Data8);
         serSend->setFlowControl(QSerialPort::NoFlowControl);
         serSend->setParity(QSerialPort::NoParity);
@@ -167,7 +167,7 @@ void WgtChat::sltS(int id)
     array.push_front(addr[0]);
     serSend->write(array);
     th2->cmd = 0;
-    for(int i=1;i;i++);
+    //for(int i=1;i!=0;i++);
 }
 
 void WgtChat::sltReadBuf()

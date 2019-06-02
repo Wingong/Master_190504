@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
       wgtSerial(new WgtSerial(this)),
       wgtChat(new WgtChat(this)),
       wgtVideo(new WgtVideo(this)),
+      wgtNet(new WgtNet(this)),
       wgtSettings(new WgtSettings(this))
 //      menuBarMain(this->menuBar()),
 //      menuFile(new QMenu("文件(&F)", menuBarMain)),
@@ -23,14 +24,15 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
 //
 //    menuFile->addAction("打开(&O)",this,SLOT(sltOpen()),QKeySequence("Ctrl+O"));
 
-    this->setWindowTitle("无人机应急通信基站 v0.3.2");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.4.1");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
-    this->setGeometry(100,100,600,400);         //设置窗体尺寸和位置
+    this->setGeometry(100,100,800,600);         //设置窗体尺寸和位置
 
     this->wgtTab->addTab(wgtSerial,"串口助手");  //添加标签窗体
     this->wgtTab->addTab(wgtChat,"传输");
     this->wgtTab->addTab(wgtVideo,"视频");
+    this->wgtTab->addTab(wgtNet,"网络助手");
     this->wgtTab->addTab(wgtSettings,"设置");
     QPalette pal(wgtSerial->palette());         //设置色盘
     pal.setColor(QPalette::Background,0xf0f0f0);
@@ -47,6 +49,11 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
     wgtVideo->setAutoFillBackground(true);
     wgtVideo->setPalette(pal);
     wgtVideo->show();
+    pal = wgtNet->palette();
+    pal.setColor(QPalette::Background,0xf0f0f0);
+    wgtNet->setAutoFillBackground(true);
+    wgtNet->setPalette(pal);
+    wgtNet->show();
                                                 //连接窗体切换和窗体切换槽函数
     connect(wgtTab,SIGNAL(currentChanged(int)),this,SLOT(sltTab(int)));
 }
