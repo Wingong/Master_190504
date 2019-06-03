@@ -32,6 +32,7 @@ public:
     qreal       dw,dh;
     int         tx;
     int         cnt;
+    int         cntv;
     int         index,status;
     bool        auto_dir;
     int         auto_dat;
@@ -74,7 +75,7 @@ public:
     QQueue<u8>  queSend;
     QByteArray  arr;
 
-    QTimer      *drawTimer;
+    QTimer      *voiceTimer;
     QTimer      *fpsTimer;
 
     QVector<QVector<bool> >
@@ -89,24 +90,25 @@ signals:
 
 private:
 
+protected:
+    void funRecv(void);
+    bool eventFilter(QObject *watched, QEvent *event);
+    void resizeEvent(QResizeEvent *event);
 public slots:
     void sltRefresh(void);
     void sltToggle(void);
     void sltClear(void);
-    void sltRecv(void);
     void sltSend(void);
     void sltReadBuf(void);
     void sltAutoRead(void);
     void sltDirTog(int index, bool b);
     void sltDatTog(int index, bool b);
     void sltAutoTog(bool b);
+    void sltVoice(void);
     void updateBoard();
 #ifdef DEBUG
     void fps(void);
 #endif
-protected:
-    bool eventFilter(QObject *watched, QEvent *event);
-    void resizeEvent(QResizeEvent *event);
 };
 
 #endif // WGTVIDEO_H

@@ -5,6 +5,8 @@
 #define DEBUG
 #define HEIGHT 120
 #define WIDTH  160
+#define BTBAUD 115200
+#define CHBAUD 230400
 
 #include <QString>
 #include <QVector>

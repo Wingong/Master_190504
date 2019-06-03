@@ -13,7 +13,7 @@
 
 WgtVideo::WgtVideo(QWidget *parent)
     : QWidget(parent),
-      dw(1),dh(1),tx(0),cnt(0),index(0),status(0),recv_count(0),opened(false),automode(false),
+      dw(1),dh(1),tx(0),cnt(0),cntv(0),index(0),status(0),recv_count(0),opened(false),automode(false),
       labPort(new QLabel("蓝牙串口",this)),
       labPaint(new QLabel(this)),
       labFPS(new QLabel("帧率：",this)),
@@ -39,7 +39,7 @@ WgtVideo::WgtVideo(QWidget *parent)
       btnSToggle(new QPushButton("打开",this)),
       serBt(new Serial),
       serCh(new Serial),
-      drawTimer(new QTimer(this)),
+      voiceTimer(new QTimer(this)),
       fpsTimer(new QTimer(this)),
       mat(WIDTH, QVector<bool>(HEIGHT,false)),
       thread(new ThdImageSend(ques,addr,arr,this))
@@ -94,18 +94,17 @@ WgtVideo::WgtVideo(QWidget *parent)
     connect(btgDir,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDirTog(int,bool)));
     connect(btgDat,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDatTog(int,bool)));
     connect(chbAuto,SIGNAL(toggled(bool)),this,SLOT(sltAutoTog(bool)));
-    connect(serBt,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
-    connect(serCh,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
-    serBt->setBaudRate(230400);
+    connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
+    serBt->setBaudRate(BTBAUD);
     serBt->setFlowControl(QSerialPort::NoFlowControl);
     serBt->setParity(QSerialPort::NoParity);
     serBt->setStopBits(QSerialPort::OneStop);
 
     connect(thread,SIGNAL(readOK()),this,SLOT(sltSend()));
-    drawTimer->setInterval(10);
+    voiceTimer->setInterval(15);
 #ifdef DEBUG
     connect(fpsTimer,SIGNAL(timeout()),this,SLOT(fps()));
-    fpsTimer->setInterval(1000);
+    fpsTimer->setInterval(500);
 #endif
 }
 
@@ -114,7 +113,7 @@ WgtVideo::~WgtVideo()
     thread->ena = false;
     thread->exit();
     fpsTimer->stop();
-    drawTimer->stop();
+    voiceTimer->stop();
 }
 
 void WgtVideo::genRects()
@@ -171,6 +170,11 @@ void WgtVideo::sltToggle()
                 opened = false;
             if(btnSToggle->text()=="打开" && (rbtDatVoice->isChecked() || rbtDirS->isChecked()))
                 txtAddr->setEnabled(true);
+            if(serSend == serBt)
+            {
+                voiceTimer->stop();
+                disconnect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
+            }
         }
         else
         {
@@ -183,7 +187,7 @@ void WgtVideo::sltToggle()
             status = 0;
             thread->ena = true;
             //thread->start();
-            serBt->setBaudRate(230400);
+            serBt->setBaudRate(BTBAUD);
             serBt->setDataBits(QSerialPort::Data8);
             serBt->setFlowControl(QSerialPort::NoFlowControl);
             serBt->setParity(QSerialPort::NoParity);
@@ -192,6 +196,11 @@ void WgtVideo::sltToggle()
             btnRefresh->setEnabled(false);
             btnToggle->setText("关闭");
             fpsTimer->start();
+            if(serSend == serBt)
+            {
+                voiceTimer->start();
+                connect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
+            }
             //if(rbtDirR->isChecked())
             //    opened = true;
         }
@@ -245,7 +254,7 @@ void WgtVideo::sltToggle()
             rbtDirS->setEnabled(false);
             rbtDatVideo->setEnabled(false);
             rbtDatVoice->setEnabled(false);
-            serCh->setBaudRate(230400);
+            serCh->setBaudRate(CHBAUD);
             serCh->setDataBits(QSerialPort::Data8);
             serCh->setFlowControl(QSerialPort::NoFlowControl);
             serCh->setParity(QSerialPort::NoParity);
@@ -271,7 +280,7 @@ void WgtVideo::sltClear()
     status = 0;
 }
 
-void WgtVideo::sltRecv()
+void WgtVideo::funRecv()
 {
     int prev_status(0);
     while(queRecv.size())
@@ -416,42 +425,18 @@ void WgtVideo::sltReadBuf()
         QByteArray src = serRecv->readAll();
         for(auto i:src)
             queRecv.enqueue(i);
-        sltRecv();
+        funRecv();
     }
-    else if(rbtDatVoice->isChecked() && rbtDirS->isChecked())
+    else if(rbtDatVoice->isChecked())
     {
-        QByteArray src = serBt->readAll();
-        /*QString txt(txtData->toPlainText());
-        for(auto i:src)
+        arr = serRecv->readAll();
+        if(rbtDirS->isChecked())
         {
-            txt.append(HEX(i/16));
-            txt.append(HEX(i%16));
-            txt.append(32);
-        }*/
-        //if(opened)
-        //{
-        //    //for(auto i:src)
-        //    //    queSend.enqueue(i);
-        //    //emit readOK();
-        //}
-        //txtData->setText(txt);
-    }
-    else
-    {
-        QByteArray src = serCh->readAll();
-        //QString txt(txtData->toPlainText());
-        //for(auto i:src)
-        //{
-        //    txt.append(HEX(i/16));
-        //    txt.append(HEX(i%16));
-        //    txt.append(32);
-        //}
-        //if(opened)
-        //{
-        //    //for(auto i:src)
-        //    //    queSend.enqueue(i);
-        //    //emit readOK();
-        //}
+            serSend->write(arr);
+            cntv ++;
+        }
+        else if(arr.size() == 30)
+            cntv ++;
     }
 }
 
@@ -522,15 +507,19 @@ void WgtVideo::sltDirTog(int index,bool b)
                 btnToggle->setEnabled(true);
             }
             txtAddr->setEnabled(false);
+            disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
             serRecv = serCh;
             serSend = serBt;
+            connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
         }
         else
         {
             btnToggle->setEnabled(true);
             txtAddr->setEnabled(true);
+            disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
             serRecv = serBt;
             serSend = serCh;
+            connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
         }
     }
 }
@@ -584,6 +573,12 @@ void WgtVideo::sltAutoTog(bool b)
         disconnect(serRecv,SIGNAL(readyRead()),this,SLOT(sltAutoRead()));
         connect(serRecv,SIGNAL(readyRead()),this,SLOT(sltReadBuf()));
     }
+}
+
+void WgtVideo::sltVoice()
+{
+    if(arr.size() == 30)
+        serSend->write(arr);
 }
 
 void WgtVideo::sltSend()
@@ -651,7 +646,9 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
 #ifdef DEBUG
 void WgtVideo::fps()
 {
-    txtFPS->setText(QString::number(cnt));
-    cnt = 0;
+    txtFPS->setText(QString::number(cntv*2));
+    if(cntv < 10)
+        arr.clear();
+    cntv = 0;
 }
 #endif
