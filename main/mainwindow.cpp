@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
 //
 //    menuFile->addAction("打开(&O)",this,SLOT(sltOpen()),QKeySequence("Ctrl+O"));
 
-    this->setWindowTitle("无人机应急通信基站 v0.4.3");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.4.4");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
     this->setGeometry(100,100,800,600);         //设置窗体尺寸和位置

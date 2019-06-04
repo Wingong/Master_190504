@@ -5,9 +5,12 @@
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
+#include <QFrame>
 #include <QQueue>
 #include <QPainter>
 #include <QTimer>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QVector>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -66,6 +69,14 @@ public:
     QCheckBox   *chbAuto;
     QPushButton *btnSToggle;
 
+    QFrame      *fraOld;
+    QFrame      *fraServer;
+
+    QLabel      *labIP;
+    QLabel      *labTcpPort;
+    QLineEdit   *txtIP;
+    QLineEdit   *txtTcpPort;
+    QPushButton *btnListen;
 
     Serial      *serBt;
     Serial      *serCh;
@@ -74,9 +85,13 @@ public:
     QQueue<u8>  queRecv;
     QQueue<u8>  queSend;
     QByteArray  arr;
+    QByteArray  tempArr;
 
     QTimer      *voiceTimer;
     QTimer      *fpsTimer;
+
+    QTcpServer  *server;
+    QTcpSocket  *client;
 
     QVector<QVector<bool> >
                 mat;
@@ -92,6 +107,7 @@ private:
 
 protected:
     void funRecv(void);
+    void updateBoard();
     bool eventFilter(QObject *watched, QEvent *event);
     void resizeEvent(QResizeEvent *event);
 public slots:
@@ -105,7 +121,10 @@ public slots:
     void sltDatTog(int index, bool b);
     void sltAutoTog(bool b);
     void sltVoice(void);
-    void updateBoard();
+    void sltLisTog(bool b);
+    void sltConnected(void);
+    void sltDisconnected(void);
+    void sltTcpRecv(void);
 #ifdef DEBUG
     void fps(void);
 #endif

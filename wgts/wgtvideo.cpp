@@ -37,10 +37,19 @@ WgtVideo::WgtVideo(QWidget *parent)
       btgDat(new QButtonGroup(this)),
       chbAuto(new QCheckBox("自动模式",this)),
       btnSToggle(new QPushButton("打开",this)),
+      fraOld(new QFrame(this)),
+      fraServer(new QFrame(this)),
+      labIP(new QLabel("IP：",this)),
+      labTcpPort(new QLabel("端口：",this)),
+      txtIP(new QLineEdit(this)),
+      txtTcpPort(new QLineEdit(this)),
+      btnListen(new QPushButton("监听",this)),
       serBt(new Serial),
       serCh(new Serial),
       voiceTimer(new QTimer(this)),
       fpsTimer(new QTimer(this)),
+      server(new QTcpServer(this)),
+      client(nullptr),
       mat(WIDTH, QVector<bool>(HEIGHT,false)),
       thread(new ThdImageSend(ques,addr,arr,this))
 {
@@ -77,6 +86,13 @@ WgtVideo::WgtVideo(QWidget *parent)
     rbtDirS->resize(80,25);
     rbtDatVideo->resize(80,25);
     rbtDatVoice->resize(80,25);
+    labIP->resize(80,25);
+    labTcpPort->resize(80,25);
+    txtIP->resize(125,25);
+    txtIP->setValidator(new QRegExpValidator(QRegExp("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$")));
+    txtTcpPort->resize(125,25);
+    txtTcpPort->setValidator(new QRegExpValidator(QRegExp("[0-9]{1,5}$")));
+    btnListen->resize(80,25);
     btgDir->addButton(rbtDirR);
     btgDir->addButton(rbtDirS);
     btgDat->addButton(rbtDatVideo);
@@ -85,6 +101,13 @@ WgtVideo::WgtVideo(QWidget *parent)
     rbtDatVideo->setChecked(true);
     chbAuto->resize(100,25);
     btnSToggle->resize(80,25);
+
+    fraOld->resize(330,107);
+    fraServer->resize(180,107);
+    fraOld->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    fraServer->setFrameStyle(QFrame::Box | QFrame::Sunken);
+
+
     serRecv=serCh;
     serSend=serBt;
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
@@ -105,7 +128,10 @@ WgtVideo::WgtVideo(QWidget *parent)
 #ifdef DEBUG
     connect(fpsTimer,SIGNAL(timeout()),this,SLOT(fps()));
     fpsTimer->setInterval(500);
+
 #endif
+    connect(btnListen,SIGNAL(clicked(bool)),this,SLOT(sltLisTog(bool)));
+    connect(server,SIGNAL(newConnection()),this,SLOT(sltConnected()));
 }
 
 WgtVideo::~WgtVideo()
@@ -172,8 +198,8 @@ void WgtVideo::sltToggle()
                 txtAddr->setEnabled(true);
             if(serSend == serBt)
             {
-                voiceTimer->stop();
-                disconnect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
+                //voiceTimer->stop();
+                //disconnect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
             }
         }
         else
@@ -198,8 +224,8 @@ void WgtVideo::sltToggle()
             fpsTimer->start();
             if(serSend == serBt)
             {
-                voiceTimer->start();
-                connect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
+                //voiceTimer->start();
+                //connect(voiceTimer,SIGNAL(timeout()),this,SLOT(sltVoice()));
             }
             //if(rbtDirR->isChecked())
             //    opened = true;
@@ -429,14 +455,41 @@ void WgtVideo::sltReadBuf()
     }
     else if(rbtDatVoice->isChecked())
     {
-        arr = serRecv->readAll();
-        if(rbtDirS->isChecked())
+        QByteArray qba = serRecv->readAll();
+        int i=0;
+        if(qba.size() == 30 && qba[0]==(char)0x59)
         {
+            arr = qba;
             serSend->write(arr);
             cntv ++;
+            i=1;
         }
-        else if(arr.size() == 30)
+        else if(qba.size()+tempArr.size() == 30)
+        {
+            arr = tempArr.append(qba);
+            tempArr.clear();
+            serSend->write(arr);
             cntv ++;
+            i=2;
+        }
+        else if(qba.size()+tempArr.size() > 30)
+        {
+            tempArr.clear();
+            i=3;
+        }
+        else
+        {
+            i=4;
+            tempArr.append(qba);
+        }
+        QString str;
+        for(u8 i:qba)
+        {
+            str.append(HEX(i/16));
+            str.append(HEX(i%16));
+            str.append(' ');
+        }
+        txtData->append(str);
     }
 }
 
@@ -577,8 +630,53 @@ void WgtVideo::sltAutoTog(bool b)
 
 void WgtVideo::sltVoice()
 {
+    txtData->append(QString::number(arr.size()));
     if(arr.size() == 30)
         serSend->write(arr);
+}
+
+void WgtVideo::sltLisTog(bool b)
+{
+    if(server->isListening())
+    {
+        server->close();
+        btnListen->setText("监听");
+        txtIP->setEnabled(true);
+        txtTcpPort->setEnabled(true);
+    }
+    else
+    {
+        if(!server->listen(QHostAddress(txtIP->text()),txtTcpPort->text().toInt()))
+        {
+            QMessageBox::critical(this,"错误",server->errorString(),QMessageBox::Ok);
+            return;
+        }
+        btnListen->setText("停止监听");
+        txtIP->setEnabled(false);
+        txtTcpPort->setEnabled(false);
+    }
+}
+
+void WgtVideo::sltConnected(void)
+{
+    client = server->nextPendingConnection();
+    connect(client,SIGNAL(readyRead()),this,SLOT(sltTcpRecv()));
+    connect(client,SIGNAL(disconnected()),this,SLOT(sltDisconnected()));
+    txtInfo->append("[New connection]");
+    txtInfo->append(QString("Time: ").append(QDateTime::currentDateTime().toString("yyyy-mm-dd hh:mm:ss")));
+    txtInfo->append(QString("IP: %1").arg(client->peerAddress().toString()));
+    txtInfo->append(QString("Port: %1\n").arg(client->peerPort()));
+}
+
+void WgtVideo::sltDisconnected()
+{
+    disconnect(client,SIGNAL(readyRead()),this,SLOT(sltTcpRecv()));
+    disconnect(client,SIGNAL(disconnected()),this,SLOT(sltDisconnected()));
+}
+
+void WgtVideo::sltTcpRecv()
+{
+    txtInfo->append(client->readAll());
 }
 
 void WgtVideo::sltSend()
@@ -619,27 +717,34 @@ bool WgtVideo::eventFilter(QObject *watched, QEvent *event)
 void WgtVideo::resizeEvent(QResizeEvent *event)
 {
     QSize siz(event->size());
-    labPort->move(20,siz.height()-65);
-    labPaint->resize(siz.width()-273,siz.height()-127);
+    labPort->move(25,siz.height()-70);
+    labPaint->resize(siz.width()-273,siz.height()-140);
     labFPS->move(siz.width()-233,20);
     txtFPS->move(siz.width()-183,20);
     labInfo->move(siz.width()-233,60);
     txtInfo->setGeometry(siz.width()-233,92,213,siz.height()-152);
     txtData->resize(siz.width()-273,siz.height()-127);
-    cbxPort->move(90,siz.height()-65);
-    btnRefresh->move(20,siz.height()-100);
-    btnToggle->move(190,siz.height()-65);
+    cbxPort->move(95,siz.height()-70);
+    btnRefresh->move(25,siz.height()-105);
+    btnToggle->move(195,siz.height()-70);
     btnClear->move(siz.width()-100,siz.height()-40);
     chbAuto->move(siz.width()-200,siz.height()-40);
-    labSPort->move(20,siz.height()-30);
-    labAddr->move(245,siz.height()-100);
-    txtAddr->move(285,siz.height()-100);
-    cbxSPort->move(90,siz.height()-30);
-    btnSToggle->move(190,siz.height()-30);
-    rbtDirR->move(110,siz.height()-100);
-    rbtDirS->move(175,siz.height()-100);
-    rbtDatVideo->move(280,siz.height()-65);
-    rbtDatVoice->move(280,siz.height()-30);
+    labSPort->move(25,siz.height()-35);
+    labAddr->move(250,siz.height()-105);
+    txtAddr->move(290,siz.height()-105);
+    cbxSPort->move(95,siz.height()-35);
+    btnSToggle->move(195,siz.height()-35);
+    fraOld->move(20,siz.height()-110);
+    fraServer->move(360,siz.height()-110);
+    labIP->move(365,siz.height()-105);
+    labTcpPort->move(365,siz.height()-70);
+    txtIP->move(405,siz.height()-105);
+    txtTcpPort->move(405,siz.height()-70);
+    btnListen->move(365,siz.height()-35);
+    rbtDirR->move(115,siz.height()-100);
+    rbtDirS->move(180,siz.height()-100);
+    rbtDatVideo->move(285,siz.height()-70);
+    rbtDatVoice->move(285,siz.height()-35);
     genRects();
 }
 

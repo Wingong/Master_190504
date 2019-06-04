@@ -5,5 +5,6 @@ WgtNet::WgtNet(QWidget *parent)
       frame(new QFrame(this))
 {
     frame->setGeometry(10,10,100,100);
-    frame->setFrameShape(QFrame::StyledPanel);
+    frame->setFrameShape(QFrame::Box);
+    frame->setFrameShadow(QFrame::Sunken);
 }
