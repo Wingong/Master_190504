@@ -5,7 +5,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
-#include <QFrame>
+#include <QGroupBox>
 #include <QQueue>
 #include <QPainter>
 #include <QTimer>
@@ -32,6 +32,12 @@ public:
     explicit WgtVideo(QWidget *parent = nullptr);
     ~WgtVideo();
 
+    enum Dir
+    {
+        Recv = 0,
+        Send = 1
+    };
+
     qreal       dw,dh;
     int         tx;
     int         cnt;
@@ -43,69 +49,80 @@ public:
     u8          addr[2];
     bool        opened;
     bool        automode;
+    Dir         dir;
 
+
+    QQueue<u8>  queRecv;
+    QQueue<u8>  queSend;
+    QByteArray  arr;
+    QByteArray  tempArr;
+    QVector<QVector<bool> >
+                mat;
+    QRect       rects[WIDTH][HEIGHT];
+    u8          ques[WIDTH*HEIGHT/8+4];
+
+    //frames and groups
+    QGroupBox   *fraPort;
+    QGroupBox   *fraServer;
+    QGroupBox   *fraRight;
+    QButtonGroup*btgDir;
+    QButtonGroup*btgDat;
+
+    //frameOld objects
     QLabel      *labPort;
-    QLabel      *labPaint;
-    QLabel      *labFPS;
-    QLabel      *labInfo;
-    QLineEdit   *txtFPS;
-    QTextEdit   *txtInfo;
-    QTextEdit   *txtData;
-    MyComboBox  *cbxPort;
-    QPushButton *btnRefresh;
-    QPushButton *btnToggle; //开/关串口
-    QPushButton *btnClear;
-
     QLabel      *labSPort;
     QLabel      *labAddr;
     QLineEdit   *txtAddr;
+    QPushButton *btnRefresh;
+    QPushButton *btnToggle; //开/关串口
+    QPushButton *btnSToggle;
+    MyComboBox  *cbxPort;
     MyComboBox  *cbxSPort;
     QRadioButton*rbtDirR;
     QRadioButton*rbtDirS;
     QRadioButton*rbtDatVideo;
     QRadioButton*rbtDatVoice;
-    QButtonGroup*btgDir;
-    QButtonGroup*btgDat;
-    QCheckBox   *chbAuto;
-    QPushButton *btnSToggle;
 
-    QFrame      *fraOld;
-    QFrame      *fraServer;
-
+    //frameServer objects
     QLabel      *labIP;
     QLabel      *labTcpPort;
     QLineEdit   *txtIP;
     QLineEdit   *txtTcpPort;
     QPushButton *btnListen;
 
+    //right objects
+    QLabel      *labFPS;
+    QLabel      *labInfo;
+    QLineEdit   *txtFPS;
+    QTextEdit   *txtInfo;
+    QPushButton *btnClear;
+    QCheckBox   *chbAuto;
+
+    //other objects
+    QLabel      *labPaint;
+    QTextEdit   *txtData;
+
+    //non-gui objects
+    QTimer      *voiceTimer;
+    QTimer      *fpsTimer;
+
+    ThdImageSend*thread;
+
     Serial      *serBt;
     Serial      *serCh;
     Serial      *serRecv;
     Serial      *serSend;
-    QQueue<u8>  queRecv;
-    QQueue<u8>  queSend;
-    QByteArray  arr;
-    QByteArray  tempArr;
-
-    QTimer      *voiceTimer;
-    QTimer      *fpsTimer;
 
     QTcpServer  *server;
     QTcpSocket  *client;
 
-    QVector<QVector<bool> >
-                mat;
-    ThdImageSend*thread;
-    QRect       rects[WIDTH][HEIGHT];
-    u8          ques[WIDTH*HEIGHT/8+4];
-
-    void        genRects(void);
 
 signals:
 
 private:
 
 protected:
+    void genRects(void);
     void funRecv(void);
     void updateBoard();
     bool eventFilter(QObject *watched, QEvent *event);
@@ -117,11 +134,12 @@ public slots:
     void sltSend(void);
     void sltReadBuf(void);
     void sltAutoRead(void);
+    void sltWriteOver(qint64 bytes);
     void sltDirTog(int index, bool b);
     void sltDatTog(int index, bool b);
     void sltAutoTog(bool b);
     void sltVoice(void);
-    void sltLisTog(bool b);
+    void sltLisTog();
     void sltConnected(void);
     void sltDisconnected(void);
     void sltTcpRecv(void);

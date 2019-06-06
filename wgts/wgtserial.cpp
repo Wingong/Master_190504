@@ -38,8 +38,8 @@ WgtSerial::WgtSerial(QWidget *parent)
     this->setGeometry(0,0,parent->geometry().width(),parent->geometry().height());
 
     //this->wgtTab->addTab(new QWidget(),"Tab 1");
-    (*cbxBaud) << "1200" << "2400" << "4800" << "9600"
-               << "19200" << "38400" << "57600" << "115200";
+    (*cbxBaud) << "1200" << "2400" << "4800" << "9600" << "19200"
+               << "38400" << "57600" << "115200" << "230400" << "460800";
     (*cbxExam) << "无校验" << "奇校验" << "偶校验";
     (*cbxStop) << "1位" << "2位" << "1.5位";
     labPort->resize(80,25);

@@ -7,7 +7,7 @@ Serial::Serial()
     name.clear();
     //利用QSerialPortInfo类，遍历所有可用串口的名称
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-        qDebug() << info.portName();
+        //qDebug() << info.portName();
         name << info.portName();
     }
     User::stringSort(3,name);
