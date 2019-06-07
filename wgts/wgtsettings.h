@@ -4,7 +4,6 @@
 #include <QResizeEvent>
 #include <QObject>
 #include <QWidget>
-#include <QProgressDialog>
 #include <QTabWidget>
 #include <QTreeWidget>
 #include <QFrame>
@@ -15,9 +14,11 @@
 #include <QLineEdit>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QTimer>
 #include <QVector>
 #include <QByteArray>
 #include <QString>
+#include "myprogressdialog.h"
 #include "mycombobox.h"
 #include "serial.h"
 
@@ -59,12 +60,12 @@ public:
                              "AT+CIFSR\r\n"};
     QByteArray      buffer;
 
-    int             cmd = 0;
+    int             cmd = -1;
 
     QTabWidget      *tabAT;
     QTreeWidget     *treeESPAT;
     QTreeWidget     *treeXTENDAT;
-    QProgressDialog *dlgATDELAY;
+    MyProgressDialog*dialog;
     QGroupBox       *groupPort;
 
     //QTreeWidgetItem *itemAT;
@@ -114,6 +115,7 @@ public slots:
     void sltToggle(void);
     void sltCbxTog(void);
     void sltSerialRead(void);
+    void sltCancel(void);
     void sltTest(void);
 };
 

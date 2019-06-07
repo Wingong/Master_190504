@@ -19,6 +19,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QByteArray>
+#include <QRegExp>
 
 #include "user.h"
 #include "mycombobox.h"
@@ -46,10 +47,14 @@ public:
     bool        auto_dir;
     int         auto_dat;
     int         recv_count;
+    int         baudBt;
+    int         baudCh;
     u8          addr[2];
     bool        opened;
     bool        automode;
     Dir         dir;
+    QRegExp     rxVoice;
+    QRegExp     rxVideo;
 
 
     QQueue<u8>  queRecv;

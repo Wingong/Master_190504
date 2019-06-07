@@ -6,9 +6,11 @@
 
 QT       += core gui serialport network
 
+CONFIG	 += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UAVBS_v0.4.5
+TARGET = UAVBS_v0.5.0
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use

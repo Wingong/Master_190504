@@ -88,9 +88,11 @@ WgtSettings::WgtSettings(QWidget *parent)
     treeESPAT->setItemWidget(itemESP[2],1,cbxUART);
     treeESPAT->setItemWidget(itemESP[3],1,cbxCWMODE);
     treeESPAT->setItemWidget(itemESP[4],1,cbxCWJAP);
+    treeESPAT->setItemWidget(itemESP[5],1,txtCIFSR);
     cbxUART->setFixedSize(170,25);
     cbxCWMODE->setFixedSize(170,25);
     cbxCWJAP->setFixedSize(170,25);
+    txtCIFSR->setFixedSize(170,25);
     (*cbxCWMODE) << "" << "Station模式" << "SoftAP模式" << "SoftAP+Station模式";
 
     test->setGeometry(600,400,80,25);
@@ -114,15 +116,29 @@ WgtSettings::WgtSettings(QWidget *parent)
     (*cbxExam) << "无校验" << "奇校验" << "偶校验";
     (*cbxStop) << "1位" << "2位" << "1.5位";
 
+
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(serial,SIGNAL(readyRead()),this,SLOT(sltSerialRead()));
+    //connect(timerAT,&QTimer::timeout,[=]()
+    //{
+    //    if(dialog->value()==-1)
+    //    {
+    //        timerAT->stop();
+    //        QMessageBox::critical(this,"错误","等待超时",QMessageBox::Ok);
+    //        return;
+    //    }
+    //    dialog->setValue(dialog->value()+1);
+    //});
 }
 
 void WgtSettings::sltRead()
 {
     if(!serial->isOpen())
+    {
         QMessageBox::critical(this,"错误","串口未打开！",QMessageBox::Ok);
+        return;
+    }
     QPushButton *act = qobject_cast<QPushButton *>(sender());
     for(cmd=0;cmd<CMDCNT;cmd++)
     {
@@ -131,6 +147,25 @@ void WgtSettings::sltRead()
     }
     QString str(strRead[cmd]);
     serial->write(str.toLatin1());
+    dialog=new MyProgressDialog(this);
+    QWidget *par = qobject_cast<QWidget *>(parent()->parent()->parent());
+    dialog->move(par->x()+par->width()/2-150,par->y()+par->height()/2-75);
+    switch(dialog->exec())
+    {
+    case -1:
+        QMessageBox::critical(this,"错误","等待超时",QMessageBox::Ok);
+        break;
+    case 0:
+        QMessageBox::information(this,"AT指令","用户取消等待",QMessageBox::Ok);
+        break;
+    }
+    //dialog = new QProgressDialog(this);
+    //dialog->setLabelText("等待返回值");
+    //dialog->setMinimumDuration(0);
+    //dialog->setRange(0,500);
+    //dialog->setCancelButtonText("取消");
+    //dialog->setValue(0);
+    //connect(dialog,SIGNAL(canceled()),this,SLOT(sltCancel()));
 }
 
 void WgtSettings::sltWrite()
@@ -221,21 +256,35 @@ void WgtSettings::sltSerialRead()
             re3=QRegExp(":STAIP\\,\"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
             qDebug() << re3.indexIn(buffer);
             str=re3.capturedTexts()[0];
-            itemESP[5]->setText(1,str.mid(8));
+            txtCIFSR->setText(str.mid(8));
             break;
         default:
             break;
         }
-        cmd = 0;
+        cmd = -1;
+        dialog->done(1);
+        //dialog->cancel();
         buffer.clear();
     }
     else
     {
         QRegExp re2("ERROR\r\n");
+        cmd = -1;
+        dialog->done(-2);
+        //dialog->cancel();
         if(re2.indexIn(buffer) != -1)
         {
             QMessageBox::critical(this,"错误","指令错误",QMessageBox::Ok);
         }
+    }
+}
+
+void WgtSettings::sltCancel()
+{
+    if(cmd != -1)
+    {
+        QMessageBox::information(this,"AT指令","用户取消等待",QMessageBox::Ok);
+        cmd = -1;
     }
 }
 

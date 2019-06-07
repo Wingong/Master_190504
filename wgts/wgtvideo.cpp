@@ -232,7 +232,7 @@ void WgtVideo::sltToggle()
             status = 0;
             thread->ena = true;
             //thread->start();
-            serBt->setBaudRate(BTBAUD);
+            serBt->setBaudRate(baudBt);
             serBt->setDataBits(QSerialPort::Data8);
             serBt->setFlowControl(QSerialPort::NoFlowControl);
             serBt->setParity(QSerialPort::NoParity);
@@ -299,11 +299,12 @@ void WgtVideo::sltToggle()
             rbtDirS->setEnabled(false);
             rbtDatVideo->setEnabled(false);
             rbtDatVoice->setEnabled(false);
-            serCh->setBaudRate(CHBAUD);
+            serCh->setBaudRate(baudCh);
             serCh->setDataBits(QSerialPort::Data8);
             serCh->setFlowControl(QSerialPort::NoFlowControl);
             serCh->setParity(QSerialPort::NoParity);
             serCh->setStopBits(QSerialPort::OneStop);
+            txtInfo->append(QString::number(serCh->baudRate()));
             btnSToggle->setText("关闭");
             //if(rbtDirS->isChecked())
             //    opened = true;
@@ -475,16 +476,19 @@ void WgtVideo::sltReadBuf()
     else if(rbtDatVoice->isChecked())
     {
         QByteArray qba = serRecv->readAll();
-        if(qba.size() == 300)
-        {
-            arr = qba;
-        }
-        else
-        {
-            arr.append(qba);
-        }
-        if(arr.size() == 300 && server->isListening())
-            client->write(arr);
+
+        //if(qba.size() == 300)
+        //{
+        //    arr = qba;
+        //}
+        //else
+        //{
+        //    arr.append(qba);
+        //}
+        //if(arr.size() == 300 && server->isListening())
+            client->write(qba);
+        txtInfo->append(QString::number(qba.size()));
+        qDebug() << QTime::currentTime().toString("hh:mm:ss.zzz");
         //QByteArray qba = serRecv->readAll();
         //if(qba.size() == 300 && qba[0]==(char)0x59)
         //{
@@ -573,6 +577,7 @@ void WgtVideo::sltAutoRead()
 void WgtVideo::sltWriteOver(qint64 bytes)
 {
     txtInfo->append(QString::number(bytes));
+    qDebug() << QTime::currentTime().toString("hh:mm:ss.zzz");
 }
 
 void WgtVideo::sltDirTog(int index,bool b)
@@ -671,6 +676,14 @@ void WgtVideo::sltLisTog()
 {
     if(server->isListening())
     {
+        if(client != nullptr)
+        {
+            disconnect(client,SIGNAL(readyRead()),this,SLOT(sltTcpRecv()));
+            disconnect(client,SIGNAL(disconnected()),this,SLOT(sltDisconnected()));
+            client->close();
+            delete client;
+            client = nullptr;
+        }
         server->close();
         btnListen->setText("监听");
         txtIP->setEnabled(true);
@@ -706,6 +719,9 @@ void WgtVideo::sltDisconnected()
     txtInfo->append("Client offline.\n");
     disconnect(client,SIGNAL(readyRead()),this,SLOT(sltTcpRecv()));
     disconnect(client,SIGNAL(disconnected()),this,SLOT(sltDisconnected()));
+    client->close();
+    delete client;
+    client = nullptr;
 }
 
 void WgtVideo::sltTcpRecv()
