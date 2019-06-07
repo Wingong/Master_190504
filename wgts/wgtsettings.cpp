@@ -17,6 +17,7 @@ WgtSettings::WgtSettings(QWidget *parent)
       cbxUART(new MyComboBox(2,this)),
       cbxCWMODE(new MyComboBox(3,this)),
       cbxCWJAP(new MyComboBox(4,this)),
+      txtCIFSR(new QLineEdit(this)),
       test(new QPushButton("测试",this)),
 
       labPort(new QLabel("选择串口",groupPort)),
@@ -199,19 +200,30 @@ void WgtSettings::sltCbxTog()
 void WgtSettings::sltSerialRead()
 {
     buffer.append(serial->readAll());
-    QRegExp re("OK\r\n$");
+        qDebug() << buffer;
+    QRegExp re("OK\\r\\n$");
     if(re.indexIn(buffer) != -1)
     {
-        qDebug() << buffer;
-        switch(cmd){
+        QRegExp re3;
+        QString str;
+        switch(cmd)
+        {
         case 0:
             itemESP[0]->setText(1,"OK");
             break;
         case 3:
-            QRegExp re3("\\+CWMODE:[1-3]");
+            re3=QRegExp("\\+CWMODE:[1-3]");
             re3.indexIn(buffer);
-            QString str(re3.capturedTexts()[0]);
+            str=re3.capturedTexts()[0];
             cbxCWMODE->setCurrentIndex(str.right(1).toInt());
+            break;
+        case 5:
+            re3=QRegExp(":STAIP\\,\"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
+            qDebug() << re3.indexIn(buffer);
+            str=re3.capturedTexts()[0];
+            itemESP[5]->setText(1,str.mid(8));
+            break;
+        default:
             break;
         }
         cmd = 0;
@@ -220,7 +232,7 @@ void WgtSettings::sltSerialRead()
     else
     {
         QRegExp re2("ERROR\r\n");
-        if(re2.indexIn(buffer))
+        if(re2.indexIn(buffer) != -1)
         {
             QMessageBox::critical(this,"错误","指令错误",QMessageBox::Ok);
         }

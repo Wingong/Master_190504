@@ -4,10 +4,11 @@
 #include <QResizeEvent>
 #include <QObject>
 #include <QWidget>
-#include <QFrame>
-#include <QLabel>
+#include <QProgressDialog>
 #include <QTabWidget>
 #include <QTreeWidget>
+#include <QFrame>
+#include <QLabel>
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
@@ -47,7 +48,7 @@ public:
                              "",
                              "AT+CWMODE?\r\n",
                              "AT+CWLAP\r\n",
-                             "AT+CIFSR?\r\n"};
+                             "AT+CIFSR\r\n"};
 
     const QStringList
                     strWrite={"AT\r\n",
@@ -55,7 +56,7 @@ public:
                              "AT+UART=<baudrate>,<databits>,<stopbits>,<parity>,<flow control>\r\n",
                              "AT+CWMODE=<mode>\r\n",
                              "AT+CWLAP\r\n",
-                             "AT+CIFSR?\r\n"};
+                             "AT+CIFSR\r\n"};
     QByteArray      buffer;
 
     int             cmd = 0;
@@ -63,6 +64,7 @@ public:
     QTabWidget      *tabAT;
     QTreeWidget     *treeESPAT;
     QTreeWidget     *treeXTENDAT;
+    QProgressDialog *dlgATDELAY;
     QGroupBox       *groupPort;
 
     //QTreeWidgetItem *itemAT;
@@ -80,6 +82,7 @@ public:
     MyComboBox      *cbxUART;
     MyComboBox      *cbxCWMODE;
     MyComboBox      *cbxCWJAP;
+    QLineEdit       *txtCIFSR;
     QPushButton     *test;
 
     QLabel          *labPort;

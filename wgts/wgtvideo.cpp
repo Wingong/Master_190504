@@ -572,9 +572,7 @@ void WgtVideo::sltAutoRead()
 
 void WgtVideo::sltWriteOver(qint64 bytes)
 {
-    txtInfo->append(QTime::currentTime().toString("hh:mm:ss.zzz"));
     txtInfo->append(QString::number(bytes));
-    txtInfo->append("");
 }
 
 void WgtVideo::sltDirTog(int index,bool b)
@@ -688,6 +686,7 @@ void WgtVideo::sltLisTog()
         btnListen->setText("停止监听");
         txtIP->setEnabled(false);
         txtTcpPort->setEnabled(false);
+        connect(serSend,SIGNAL(bytesWritten(qint64)),this,SLOT(sltWriteOver(qint64)));
     }
 }
 
@@ -712,12 +711,8 @@ void WgtVideo::sltDisconnected()
 void WgtVideo::sltTcpRecv()
 {
     QByteArray array(client->readAll());
-    txtInfo->append(array);
-    connect(serSend,SIGNAL(bytesWritten(qint64)),this,SLOT(sltWriteOver(qint64)));
     if(serSend->isOpen())
         serSend->write(array);
-    QTime time(QTime::currentTime());
-    txtInfo->append(time.toString("hh:mm:ss.zzz"));
 }
 
 void WgtVideo::sltSend()
