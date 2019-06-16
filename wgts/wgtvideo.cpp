@@ -60,6 +60,7 @@ WgtVideo::WgtVideo(QWidget *parent)
       //non-gui objects
       voiceTimer(new QTimer(this)),
       fpsTimer(new QTimer(this)),
+      thDisp(new ThdImageDisp(this)),
       thread(new ThdImageSend(ques,addr,arr,this)),
       serBt(new Serial),
       serCh(new Serial),
@@ -132,6 +133,8 @@ WgtVideo::WgtVideo(QWidget *parent)
     fpsTimer->setInterval(500);
     serRecv=serCh;
     serSend=serBt;
+    qDebug() << "IMG Read: " << thDisp->image.load("a.jpg","JPG");
+    thDisp->labPaint = this->labPaint;
 
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
@@ -144,7 +147,7 @@ WgtVideo::WgtVideo(QWidget *parent)
     connect(serBt,SIGNAL(bytesWritten(qint64)),this,SLOT(sltWriteOver(qint64)));
     connect(serCh,SIGNAL(bytesWritten(qint64)),this,SLOT(sltWriteOver(qint64)));
 
-    connect(thread,SIGNAL(readOK()),this,SLOT(sltSend()));
+    //connect(thread,&ThdImageSend::readOK,this,&WgtVideo::repaint);
 #ifdef DEBUG
     connect(fpsTimer,SIGNAL(timeout()),this,SLOT(fps()));
 
@@ -195,7 +198,7 @@ void WgtVideo::sltRefresh()
         (*cbxSPort) << serCh->name;
         cbxSPort->setCurrentText(str);
     }
-    qDebug() << "refreshed\n";
+    qDebug() << "port refreshed\n";
 }
 
 void WgtVideo::sltToggle()
@@ -468,57 +471,27 @@ void WgtVideo::sltReadBuf()
 {
     if(rbtDatVideo->isChecked())
     {
-        QByteArray src = serRecv->readAll();
-        for(auto i:src)
-            queRecv.enqueue(i);
-        funRecv();
+        QByteArray array(serCh->readAll());
+        arr.append(array);
+        if(array.right(2) == jpgend)
+        {
+            thDisp->resize = false;
+            thDisp->arr = this->arr;
+            thDisp->start();
+            arr.clear();
+        }
+        //for(auto i:qba)
+        //    queRecv.enqueue(i);
+        //thread->start();
     }
     else if(rbtDatVoice->isChecked())
     {
         QByteArray qba = serRecv->readAll();
 
-        //if(qba.size() == 300)
-        //{
-        //    arr = qba;
-        //}
-        //else
-        //{
-        //    arr.append(qba);
-        //}
         //if(arr.size() == 300 && server->isListening())
             client->write(qba);
         txtInfo->append(QString::number(qba.size()));
-        qDebug() << QTime::currentTime().toString("hh:mm:ss.zzz");
-        //QByteArray qba = serRecv->readAll();
-        //if(qba.size() == 300 && qba[0]==(char)0x59)
-        //{
-        //    arr = qba;
-        //    serSend->write(arr);
-        //    cntv ++;
-        //}
-        //else if(qba.size()+tempArr.size() == 30)
-        //{
-        //    arr = tempArr.append(qba);
-        //    tempArr.clear();
-        //    serSend->write(arr);
-        //    cntv ++;
-        //}
-        //else if(qba.size()+tempArr.size() > 30)
-        //{
-        //    tempArr.clear();
-        //}
-        //else
-        //{
-        //    tempArr.append(qba);
-        //}
-        //QString str;
-        //for(u8 i:qba)
-        //{
-        //    str.append(HEX(i/16));
-        //    str.append(HEX(i%16));
-        //    str.append(' ');
-        //}
-        //txtData->append(str);
+        qDebug() << "Time: " << QTime::currentTime().toString("hh:mm:ss.zzz");
     }
 }
 
@@ -542,7 +515,7 @@ void WgtVideo::sltAutoRead()
                 qDebug() << "Auto mode 2";
             }
             else
-                qDebug() << "Error!";
+                qDebug() << "Auto mode Error!";
         }
         break;
     case 1:
@@ -577,7 +550,7 @@ void WgtVideo::sltAutoRead()
 void WgtVideo::sltWriteOver(qint64 bytes)
 {
     txtInfo->append(QString::number(bytes));
-    qDebug() << QTime::currentTime().toString("hh:mm:ss.zzz");
+    qDebug() << "Write time: " << QTime::currentTime().toString("hh:mm:ss.zzz");
 }
 
 void WgtVideo::sltDirTog(int index,bool b)
@@ -727,6 +700,19 @@ void WgtVideo::sltDisconnected()
 void WgtVideo::sltTcpRecv()
 {
     QByteArray array(client->readAll());
+    arr.append(array);
+    if(array.right(2) == jpgend)
+    {
+        thDisp->resize = false;
+        thDisp->arr = this->arr;
+        thDisp->start();
+        arr.clear();
+    }
+    //if(rbtDatVideo->isChecked() && array.size() == 1200)
+    //{
+    //    //queRecv.append(array);
+    //    funRecv();
+    //}
     if(serSend->isOpen())
         serSend->write(array);
 }
@@ -779,16 +765,18 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
     chbAuto->move(110,height-60);
 
     labPaint->resize(width-273,height-162);
+    qDebug() << "Paint label size: " << labPaint->size();
     txtData->resize(width-273,height-162);
+
+    thDisp->resize = true;
+    thDisp->start();
     genRects();
 }
 
 #ifdef DEBUG
 void WgtVideo::fps()
 {
-    txtFPS->setText(QString::number(cntv*2));
-    if(cntv < 10)
-        arr.clear();
+    txtFPS->setText(QString::number(cntv));
     cntv = 0;
 }
 #endif

@@ -8,6 +8,8 @@
 #include <QGroupBox>
 #include <QQueue>
 #include <QPainter>
+#include <QImage>
+#include <QPixmap>
 #include <QTimer>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -24,6 +26,7 @@
 #include "user.h"
 #include "mycombobox.h"
 #include "serial.h"
+#include "thdimagedisp.h"
 #include "thdimagesend.h"
 
 class WgtVideo : public QWidget
@@ -56,7 +59,7 @@ public:
     QRegExp     rxVoice;
     QRegExp     rxVideo;
 
-
+    QByteArray  jpgend = "\xFF\xD9";
     QQueue<u8>  queRecv;
     QQueue<u8>  queSend;
     QByteArray  arr;
@@ -72,6 +75,8 @@ public:
     QGroupBox   *fraRight;
     QButtonGroup*btgDir;
     QButtonGroup*btgDat;
+    QImage      image;
+    QPixmap     pixmap;
 
     //frameOld objects
     QLabel      *labPort;
@@ -111,6 +116,7 @@ public:
     QTimer      *voiceTimer;
     QTimer      *fpsTimer;
 
+    ThdImageDisp*thDisp;
     ThdImageSend*thread;
 
     Serial      *serBt;

@@ -14,18 +14,21 @@ MyProgressDialog::MyProgressDialog(QWidget *parent, Qt::WindowFlags f)
     this->setWindowFlags(flags&~Qt::WindowContextHelpButtonHint);
     bar->setGeometry(50,75,width()-75,30);
     bar->setFormat("");
-    bar->setRange(0,500);
+    bar->setRange(0,300);
     label->setGeometry(50,40,200,25);
     seconds->setGeometry(200,80,80,50);
     label->setAlignment(Qt::AlignCenter);
     seconds->setAlignment(Qt::AlignCenter);
-    timer->setInterval(10);
+    timer->setInterval(50);
+    //bar->setFormat("%p");
+    bar->reset();
     connect(timer,&QTimer::timeout,[=]
     {
        bar->setValue(bar->value()+1);
-       if(bar->value()%50 == 0)
+       bar->update();
+       if(bar->value()%20 == 0)
        {
-           label->setText(QString("AT指令等待...%1秒").arg(bar->value()/100+1));
+           label->setText(QString("AT指令等待...%1秒").arg(bar->value()/20+1));
        }
        if(bar->value() == bar->maximum())
        {

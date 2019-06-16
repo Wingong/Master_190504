@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
@@ -54,10 +55,10 @@ public:
     const QStringList
                     strWrite={"AT\r\n",
                              "AT+RST\r\n",
-                             "AT+UART=<baudrate>,<databits>,<stopbits>,<parity>,<flow control>\r\n",
-                             "AT+CWMODE=<mode>\r\n",
-                             "AT+CWLAP\r\n",
-                             "AT+CIFSR\r\n"};
+                             "AT+UART=%1,%2,%3,%4,%5\r\n",
+                             "AT+CWMODE=%1\r\n",
+                             "AT+CWJAP=\"%1\",\"%2\"\r\n",
+                             "AT+CIPSTA=\r\n"};
     QByteArray      buffer;
 
     int             cmd = -1;
@@ -68,12 +69,6 @@ public:
     MyProgressDialog*dialog;
     QGroupBox       *groupPort;
 
-    //QTreeWidgetItem *itemAT;
-    //QTreeWidgetItem *itemRST;
-    //QTreeWidgetItem *itemUART;
-    //QTreeWidgetItem *itemCWMODE;
-    //QTreeWidgetItem *itemCWJAP;
-    //QTreeWidgetItem *itemCIFSR;
     QVector<QTreeWidgetItem *>
                     itemESP;
     QVector<QPushButton *>
@@ -84,7 +79,7 @@ public:
     MyComboBox      *cbxCWMODE;
     MyComboBox      *cbxCWJAP;
     QLineEdit       *txtCIFSR;
-    QPushButton     *test;
+    //QPushButton     *test;
 
     QLabel          *labPort;
     QLabel          *labBaud;
@@ -97,7 +92,12 @@ public:
     QPushButton     *btnRefresh;
     QPushButton     *btnToggle;
 
-    QLineEdit       *regexp;
+    //QLineEdit       *regexp;
+
+    QTextEdit       *hist;
+    QTextEdit       *tose;
+    QPushButton     *btnOnePush;
+    QPushButton     *btnSend;
 
     Serial          *serial;
     QTcpServer      *server;
@@ -107,6 +107,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 signals:
+    void next();
 
 public slots:
     void sltRead(void);

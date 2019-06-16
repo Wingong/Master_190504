@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
 //
 //    menuFile->addAction("打开(&O)",this,SLOT(sltOpen()),QKeySequence("Ctrl+O"));
 
-    this->setWindowTitle("无人机应急通信基站 v0.5.0");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.5.1");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
 
@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
 
     wgtTab->setCurrentIndex(settings->value("Main/Index",QVariant(2)).toInt());
     setGeometry(settings->value("Main/Geometry",QVariant(QRect(100,100,800,600)).toRect()).toRect());
-    wgtSerial->cbxBaud->setCurrentText(QString::number(settings->value("Serial/Baud",QVariant(115200)).toInt()));
+    wgtSerial->cbxBaud->setCurrentText(settings->value("Serial/Baud",QVariant("115200")).toString());
     wgtVideo->cbxPort->setCurrentText(settings->value("Video/BtPort",QVariant(QString("COM1"))).toString());
     wgtVideo->cbxSPort->setCurrentText(settings->value("Video/ChPort",QVariant(QString("COM1"))).toString());
     wgtVideo->txtIP->setText(settings->value("Video/IP",QVariant(QString(""))).toString());
@@ -74,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
     wgtSettings->cbxBaud->setCurrentText(settings->value("Settings/Baud",QVariant("115200")).toString());
     wgtSettings->cbxStop->setCurrentIndex(settings->value("Settings/Stop",QVariant(0)).toInt());
     wgtSettings->cbxExam->setCurrentIndex(settings->value("Settings/Parity",QVariant(0)).toInt());
+    wgtSettings->cbxUART->setCurrentText(settings->value("Settings/Baud",QVariant("115200")).toString());
 }
 
 MainWindow::~MainWindow()
@@ -82,7 +83,7 @@ MainWindow::~MainWindow()
     QSettings tempSet("settings.ini",QSettings::IniFormat);
     tempSet.setValue("Main/Index",QVariant(wgtTab->currentIndex()));
     tempSet.setValue("Main/Geometry",QVariant(geometry()));
-    tempSet.setValue("Serial/Baud",QVariant(wgtSerial->xTendSerial->baudRate()));
+    tempSet.setValue("Serial/Baud",QVariant(wgtSerial->cbxBaud->currentText()));
     tempSet.setValue("Video/BtPort",QVariant(wgtVideo->cbxPort->currentText()));
     tempSet.setValue("Video/ChPort",QVariant(wgtVideo->cbxSPort->currentText()));
     tempSet.setValue("Video/IP",QVariant(wgtVideo->txtIP->text()));
@@ -122,7 +123,7 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
                 wgtChat->sltRefresh();
             //else if(wgtTab->currentIndex() == 2)
                 wgtVideo->sltRefresh();
-                wgtSerial->sltRefresh();
+                wgtSettings->sltRefresh();
         }
         return bResult;
     }
