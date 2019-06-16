@@ -10,7 +10,7 @@ CONFIG	 += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UAVBS_v0.5.1
+TARGET = UAVBS_v0.6.0
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -47,3 +47,10 @@ INCLUDEPATH  +=\
 		wgts\
 
 HEADERS +=
+
+DISTFILES +=
+
+#RESOURCES += \
+#    icons.qrc
+
+RC_ICONS += resources/icon.ico
