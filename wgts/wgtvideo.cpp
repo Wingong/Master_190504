@@ -1,4 +1,5 @@
 #include <QSize>
+#include <QPalette>
 #include <QCoreApplication>
 #include <QTime>
 #include <QResizeEvent>
@@ -17,33 +18,35 @@ WgtVideo::WgtVideo(QWidget *parent)
       mat(WIDTH, QVector<bool>(HEIGHT,false)),
 
       //frames and groups
-      fraPort(new QGroupBox("串口",this)),
-      fraServer(new QGroupBox("网络",this)),
+      scrollArea(new QScrollArea(this)),
+      wgtScroll(new WgtScroll(this)),
+      fraCom(new QGroupBox("通信配置",this)),
+      fraDiag(new QGroupBox("网络",this)),
       fraRight(new QGroupBox(this)),
       btgDir(new QButtonGroup(this)),
       btgDat(new QButtonGroup(this)),
 
       //frameOld objects
-      labPort(new QLabel("蓝牙串口",fraPort)),
-      labSPort(new QLabel("链路串口",fraPort)),
-      labAddr(new QLabel("地址",fraPort)),
-      txtAddr(new QLineEdit("1234",fraPort)),
-      btnRefresh(new QPushButton("刷新",fraPort)),
-      btnToggle(new QPushButton("打开",fraPort)),
-      btnSToggle(new QPushButton("打开",fraPort)),
-      cbxPort(new MyComboBox(0,fraPort)),
-      cbxSPort(new MyComboBox(1,fraPort)),
-      rbtDirR(new QRadioButton("接收",fraPort)),
-      rbtDirS(new QRadioButton("发送",fraPort)),
-      rbtDatVideo(new QRadioButton("视频",fraPort)),
-      rbtDatVoice(new QRadioButton("语音",fraPort)),
+      labPort(new QLabel("串口",fraCom)),
+      labSPort(new QLabel("链路串口",fraCom)),
+      labAddr(new QLabel("地址",fraCom)),
+      txtAddr(new QLineEdit("1234",fraCom)),
+      btnRefresh(new QPushButton("刷新",fraCom)),
+      btnToggle(new QPushButton("打开",fraCom)),
+      btnSToggle(new QPushButton("打开",fraCom)),
+      cbxPort(new MyComboBox(0,fraCom)),
+      cbxSPort(new MyComboBox(1,fraCom)),
+      rbtDirR(new QRadioButton("接收",fraCom)),
+      rbtDirS(new QRadioButton("发送",fraCom)),
+      rbtDatVideo(new QRadioButton("视频",fraCom)),
+      rbtDatVoice(new QRadioButton("语音",fraCom)),
 
       //frameServer objects
-      labIP(new QLabel("IP：",fraServer)),
-      labTcpPort(new QLabel("端口：",fraServer)),
-      txtIP(new QLineEdit(fraServer)),
-      txtTcpPort(new QLineEdit(fraServer)),
-      btnListen(new QPushButton("监听",fraServer)),
+      labIP(new QLabel("IP：",fraDiag)),
+      labTcpPort(new QLabel("端口：",fraDiag)),
+      txtIP(new QLineEdit(fraDiag)),
+      txtTcpPort(new QLineEdit(fraDiag)),
+      btnListen(new QPushButton("监听",fraDiag)),
 
       //right objects
       labFPS(new QLabel("帧率：",fraRight)),
@@ -74,10 +77,19 @@ WgtVideo::WgtVideo(QWidget *parent)
     (*cbxPort) << serBt->name;
     (*cbxSPort) << serCh->name;
 
-    fraPort->resize(330,122);
-    fraServer->resize(180,122);
-    //fraPort->setsetFrameStyle(QFrame::Box | QFrame::Sunken);
-    //fraServer->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    scrollArea->setWidget(wgtScroll);
+    QPalette pal(wgtScroll->palette());         //设置色盘
+    pal.setColor(QPalette::Background,0xffffff);
+    wgtScroll->setAutoFillBackground(true);     //上底色
+    wgtScroll->setPalette(pal);
+    pal = scrollArea->palette();         //设置色盘
+    pal.setColor(QPalette::Background,0xffffff);
+    scrollArea->setAutoFillBackground(true);     //上底色
+    scrollArea->setPalette(pal);
+    fraCom->resize(330,122);
+    fraDiag->resize(180,122);
+    //fraCom->setsetFrameStyle(QFrame::Box | QFrame::Sunken);
+    //fraDiag->setFrameStyle(QFrame::Box | QFrame::Sunken);
     //fraRight->setFrameStyle(QFrame::Box | QFrame::Sunken);
     btgDir->addButton(rbtDirR);
     btgDir->addButton(rbtDirS);
@@ -138,7 +150,10 @@ WgtVideo::WgtVideo(QWidget *parent)
 
     connect(btnRefresh,SIGNAL(clicked(bool)),this,SLOT(sltRefresh()));
     connect(btnToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
-    connect(btnClear,SIGNAL(clicked(bool)),this,SLOT(sltClear()));
+    //connect(btnClear,SIGNAL(clicked(bool)),this,SLOT(sltClear()));
+    connect(btnClear,&QPushButton::clicked,[=](){
+        wgtScroll->newRecord(User::SEND,QString(txtInfo->toPlainText()));
+    });
     connect(btnSToggle,SIGNAL(clicked(bool)),this,SLOT(sltToggle()));
     connect(btgDir,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDirTog(int,bool)));
     connect(btgDat,SIGNAL(buttonToggled(int,bool)),this,SLOT(sltDatTog(int,bool)));
@@ -756,8 +771,9 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
 {
     int width(event->size().width());
     int height(event->size().height());
-    fraPort->move(20,height-132);
-    fraServer->move(360,height-132);
+    qDebug() << "Video: " << event->size();
+    fraCom->move(20,height-132);
+    fraDiag->move(360,height-132);
     fraRight->setGeometry(width-243,20,233,height-30);
 
     txtInfo->resize(213,height-152);
@@ -765,9 +781,17 @@ void WgtVideo::resizeEvent(QResizeEvent *event)
     chbAuto->move(110,height-60);
 
     labPaint->resize(width-273,height-162);
+    labPaint->setVisible(false);
     qDebug() << "Paint label size: " << labPaint->size();
     txtData->resize(width-273,height-162);
 
+    scrollArea->setGeometry(20,10,width-273,height-250);
+    wgtScroll->resize(scrollArea->width()-25,wgtScroll->height());
+    qDebug() << scrollArea->verticalScrollBarPolicy();
+    qDebug() << scrollArea->horizontalScrollBarPolicy();
+    qDebug() << scrollArea->sizeAdjustPolicy();
+    qDebug() << scrollArea->widgetResizable();
+    qDebug() << scrollArea->alignment();
     thDisp->resize = true;
     thDisp->start();
     genRects();

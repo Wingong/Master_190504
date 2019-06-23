@@ -12,22 +12,18 @@
 #include <QSettings>
 #include "wgtserial.h"
 #include "wgtchat.h"
-#include "wgtvideo.h"
+#include "wgtcomm.h"
 #include "wgtsettings.h"
 #include "wgtespat.h"
 #include "wgtnet.h"
-//#include <QMenuBar>
-//#include <QMenu>
+
+#include "wgtvideo.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
-//    QMenuBar  *menuBarMain;
-//    QMenu     *menuFile;
-//    QMenu     *menuEdit;
-
     QTabWidget  *wgtTab;        //标签窗体指针
 
     QSettings   *settings;      //设置类的实例指针
@@ -42,9 +38,10 @@ public:
 
     WgtSerial   *wgtSerial;     //串口窗体
     WgtChat     *wgtChat;       //通信窗体
-    WgtVideo    *wgtVideo;      //视频窗体
+    WgtComm     *wgtComm;      //视频窗体
     WgtNet      *wgtNet;
     WgtSettings *wgtSettings;   //设置窗体（无内容）
+    WgtVideo    *wgtVideo;
 
 public slots:
     void sltTab(void);          //切换标签：槽函数

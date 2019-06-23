@@ -33,20 +33,20 @@ void ThdChatRecv::run()
             {
                 switch(ch)
                 {
-                case BEG:
-                    sta = LEN;
+                case User::BEG:
+                    sta = User::LEN;
                     break;
-                case ACK:
-                    sta = AOP;
+                case User::ACK:
+                    sta = User::AOP;
                     break;
-                case ERR:
-                    sta = EOP;
+                case User::ERR:
+                    sta = User::EOP;
                     break;
                 }
                 continue;
             }
                         //当前在接收状态，接到结束指令，开始帧终末裁决
-            else if(sta == REV && ch == END)
+            else if(sta == User::REV && ch == User::END)
             {
                 if(xo == xi && count == 0)
                 {
@@ -57,37 +57,37 @@ void ThdChatRecv::run()
                         txtRecv.append(32);
                     }
                     emit recv();
-                    queSend->append(ACK);
+                    queSend->append(User::ACK);
                     queSend->append(id);
                 }
                 else
                 {
-                    queSend->append(ERR);
+                    queSend->append(User::ERR);
                     queSend->append(id);
                 }
-                sta = IDL;
+                sta = User::IDL;
                 continue;
             }
                         //转义字符，跳过该字节，下一个字节无脑接收
-            else if(sta == REV && ch == TRS)
+            else if(sta == User::REV && ch == User::TRS)
             {
-                sta = TRS;
+                sta = User::TRS;
                 count --;
                 xo ^= ch;
                 continue;
             }
-            else if(sta == TRS || sta == REV)
+            else if(sta == User::TRS || sta == User::REV)
             {
                 queproc.append(ch);
                 count --;
                 xo ^= ch;
-                sta = REV;
+                sta = User::REV;
                 continue;
             }
                         //根据次态选择下一个状态
             switch(sta)
             {
-            case LEN:
+            case User::LEN:
                 if(ch <= 240)
                 {
                     count = ch;
@@ -95,28 +95,28 @@ void ThdChatRecv::run()
                 }
                 else
                 {
-                    queSend->append(ACK);
+                    queSend->append(User::ACK);
                     queSend->append(id);
-                    sta = IDL;
+                    sta = User::IDL;
                 }
                 break;
-            case RID:
+            case User::RID:
                 id = ch;
                 sta ++;
                 break;
-            case XOR:
+            case User::XOR:
                 xi = ch;
                 xo = 0;
                 queproc.clear();
-                sta = REV;
+                sta = User::REV;
                 break;
-            case AOP:
+            case User::AOP:
                 emit oper(ch,false);
-                sta = IDL;
+                sta = User::IDL;
                 break;
-            case EOP:
+            case User::EOP:
                 emit oper(ch,true);
-                sta = IDL;
+                sta = User::IDL;
                 break;
             }
         }

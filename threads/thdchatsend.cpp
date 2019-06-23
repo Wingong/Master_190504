@@ -26,8 +26,8 @@ void ThdChatSend::run()
             if(cmd == 0)
             {
                 u8 ch(queSend->dequeue());
-                        //如果队列中是ACK或ERR字节，且队列中还有其他元素（ID）
-                if((ch == ACK || ch == ERR) && queSend->size() > 0)
+                        //如果队列中是User::ACK或User::ERR字节，且队列中还有其他元素（ID）
+                if((ch == User::ACK || ch == User::ERR) && queSend->size() > 0)
                 {
                     querea[240].clear();
                     querea[240].enqueue(ch);
@@ -41,8 +41,8 @@ void ThdChatSend::run()
                     querea[id].push_front(xo);
                     querea[id].push_front(id);
                     querea[id].push_front(240);
-                    querea[id].push_front(BEG);
-                    querea[id].enqueue(END);
+                    querea[id].push_front(User::BEG);
+                    querea[id].enqueue(User::END);
                     cmd = 1;
                     emit ok(id);
                     trans[id] ++;
@@ -59,8 +59,8 @@ void ThdChatSend::run()
                     querea[id].push_front(xo);
                     querea[id].push_front(id);
                     querea[id].push_front(querea[id].size()-2);
-                    querea[id].push_front(BEG);
-                    querea[id].enqueue(END);
+                    querea[id].push_front(User::BEG);
+                    querea[id].enqueue(User::END);
                     cmd = 1;
                     emit ok(id);
                     trans[id] ++;

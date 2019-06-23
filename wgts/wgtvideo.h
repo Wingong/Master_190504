@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QScrollArea>
 #include <QLabel>
 #include <QPushButton>
 #include <QGroupBox>
@@ -24,6 +25,7 @@
 #include <QRegExp>
 
 #include "user.h"
+#include "wgtscroll.h"
 #include "mycombobox.h"
 #include "serial.h"
 #include "thdimagedisp.h"
@@ -70,8 +72,10 @@ public:
     u8          ques[WIDTH*HEIGHT/8+4];
 
     //frames and groups
-    QGroupBox   *fraPort;
-    QGroupBox   *fraServer;
+    QScrollArea *scrollArea;
+    WgtScroll   *wgtScroll;
+    QGroupBox   *fraCom;
+    QGroupBox   *fraDiag;
     QGroupBox   *fraRight;
     QButtonGroup*btgDir;
     QButtonGroup*btgDat;

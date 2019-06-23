@@ -14,29 +14,40 @@
 
 typedef unsigned char u8;
 
-enum Cmds
-{
-    BEG = 0xff,
-    END = 0xfe,
-    ACK = 0xfd,
-    ERR = 0xfc
-};
-enum Status
-{
-    IDL = -1,
-    REV = 0,
-    LEN = 1,
-    RID = 2,
-    XOR = 3,
-    AOP = 5,
-    EOP = 7,
-    TRS = 0xf0
-};
+namespace user{
+class User;
+}
 
 class User
 {
 private:
 public:
+
+    enum Cmds
+    {
+        BEG = 0xff,
+        END = 0xfe,
+        ACK = 0xfd,
+        ERR = 0xfc
+    };
+    enum Status
+    {
+        IDL = -1,
+        REV = 0,
+        LEN = 1,
+        RID = 2,
+        XOR = 3,
+        AOP = 5,
+        EOP = 7,
+        TRS = 0xf0
+    };
+
+    enum Dirs
+    {
+        RECV = 0,
+        SEND = 1
+    };
+
     static bool stringSort(int numIndex, QStringList &src);
 };
 

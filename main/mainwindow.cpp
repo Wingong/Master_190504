@@ -13,28 +13,22 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
       settings(new QSettings("settings.ini",QSettings::IniFormat)),
       wgtSerial(new WgtSerial(this)),
       wgtChat(new WgtChat(this)),
-      wgtVideo(new WgtVideo(this)),
+      wgtComm(new WgtComm(this)),
       wgtNet(new WgtNet(this)),
-      wgtSettings(new WgtSettings(this))
-//      menuBarMain(this->menuBar()),
-//      menuFile(new QMenu("文件(&F)", menuBarMain)),
-//      menuEdit(new QMenu("编辑(&E)", menuBarMain)),
+      wgtSettings(new WgtSettings(this)),
+      wgtVideo(new WgtVideo(this))
 {
-//    menuBarMain->addMenu(menuFile);
-//    menuBarMain->addMenu(menuEdit);
-//
-//    menuFile->addAction("打开(&O)",this,SLOT(sltOpen()),QKeySequence("Ctrl+O"));
-
-    this->setWindowTitle("无人机应急通信基站 v0.6.0");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.6.1");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
     //this->setWindowIcon(QIcon(":/icons/icon.ico"));
 
     wgtTab->addTab(wgtSerial,"串口助手");  //添加标签窗体
     wgtTab->addTab(wgtChat,"传输");
-    wgtTab->addTab(wgtVideo,"视频");
+    wgtTab->addTab(wgtComm,"视频");
     wgtTab->addTab(wgtNet,"网络助手");
     wgtTab->addTab(wgtSettings,"设置");
+    wgtTab->addTab(wgtVideo,"视频");
     QPalette pal(wgtSerial->palette());         //设置色盘
     pal.setColor(QPalette::Background,0xf0f0f0);
     wgtSerial->setAutoFillBackground(true);     //上底色
@@ -45,11 +39,11 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
     wgtChat->setAutoFillBackground(true);
     wgtChat->setPalette(pal);
     wgtChat->show();
-    pal = wgtVideo->palette();
+    pal = wgtComm->palette();
     pal.setColor(QPalette::Background,0xf0f0f0);
-    wgtVideo->setAutoFillBackground(true);
-    wgtVideo->setPalette(pal);
-    wgtVideo->show();
+    wgtComm->setAutoFillBackground(true);
+    wgtComm->setPalette(pal);
+    wgtComm->show();
     pal = wgtNet->palette();
     pal.setColor(QPalette::Background,0xf0f0f0);
     wgtNet->setAutoFillBackground(true);
@@ -66,12 +60,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
     wgtTab->setCurrentIndex(settings->value("Main/Index",QVariant(2)).toInt());
     setGeometry(settings->value("Main/Geometry",QVariant(QRect(100,100,800,600)).toRect()).toRect());
     wgtSerial->cbxBaud->setCurrentText(settings->value("Serial/Baud",QVariant("115200")).toString());
-    wgtVideo->cbxPort->setCurrentText(settings->value("Video/BtPort",QVariant(QString("COM1"))).toString());
-    wgtVideo->cbxSPort->setCurrentText(settings->value("Video/ChPort",QVariant(QString("COM1"))).toString());
-    wgtVideo->txtIP->setText(settings->value("Video/IP",QVariant(QString(""))).toString());
-    wgtVideo->txtTcpPort->setText(settings->value("Video/TCPPort",QVariant("COM1")).toString());
-    wgtVideo->baudBt = settings->value("Video/BtBaud",QVariant(BTBAUD)).toInt();
-    wgtVideo->baudCh = settings->value("Video/ChBaud",QVariant(CHBAUD)).toInt();
+    wgtComm->loadSettings(*settings);
     wgtSettings->cbxPort->setCurrentText(settings->value("Settings/Port",QVariant("COM1")).toString());
     wgtSettings->cbxBaud->setCurrentText(settings->value("Settings/Baud",QVariant("115200")).toString());
     wgtSettings->cbxStop->setCurrentIndex(settings->value("Settings/Stop",QVariant(0)).toInt());
@@ -86,12 +75,7 @@ MainWindow::~MainWindow()
     tempSet.setValue("Main/Index",QVariant(wgtTab->currentIndex()));
     tempSet.setValue("Main/Geometry",QVariant(geometry()));
     tempSet.setValue("Serial/Baud",QVariant(wgtSerial->cbxBaud->currentText()));
-    tempSet.setValue("Video/BtPort",QVariant(wgtVideo->cbxPort->currentText()));
-    tempSet.setValue("Video/ChPort",QVariant(wgtVideo->cbxSPort->currentText()));
-    tempSet.setValue("Video/IP",QVariant(wgtVideo->txtIP->text()));
-    tempSet.setValue("Video/TCPPort",QVariant(wgtVideo->txtTcpPort->text().toInt()));
-    tempSet.setValue("Video/BtBaud",QVariant(wgtVideo->baudBt));
-    tempSet.setValue("Video/ChBaud",QVariant(wgtVideo->baudCh));
+    wgtComm->writeSettings(tempSet);
     tempSet.setValue("Settings/Port",QVariant(wgtSettings->cbxPort->currentText()));
     tempSet.setValue("Settings/Baud",QVariant(wgtSettings->cbxBaud->currentText()));
     tempSet.setValue("Settings/Stop",QVariant(wgtSettings->cbxStop->currentIndex()));
@@ -100,12 +84,12 @@ MainWindow::~MainWindow()
 
     delete  wgtSerial;
     //delete  wgtChat;
-    //delete  wgtVideo;
+    //delete  wgtComm;
     //delete  wgtSettings;
     delete  wgtTab;
     wgtSerial   = nullptr;
     //wgtChat     = nullptr;
-    //wgtVideo    = nullptr;
+    //wgtComm    = nullptr;
     //wgtSettings = nullptr;
     wgtTab      = nullptr;
 }
@@ -119,13 +103,10 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         //PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)msg->lParam;
         if(msg->message == WM_DEVICECHANGE && msg->wParam >= DBT_DEVICEARRIVAL)
         {
-            //if(wgtTab->currentIndex() ==  0)
-                wgtSerial->sltRefresh();
-            //else if(wgtTab->currentIndex() == 1)
-                wgtChat->sltRefresh();
-            //else if(wgtTab->currentIndex() == 2)
-                wgtVideo->sltRefresh();
-                wgtSettings->sltRefresh();
+            wgtSerial->sltRefresh();
+            wgtChat->sltRefresh();
+            wgtComm->refresh(WgtComm::X | WgtComm::L);
+            wgtSettings->sltRefresh();
         }
         return bResult;
     }
@@ -150,38 +131,4 @@ void MainWindow::sltTab(void)
             wgtTab->widget(i)->setEnabled(false);
         }
     }
-    //switch(index)
-    //{
-    //case 0:
-    //    wgtSerial->setEnabled(true);
-    //    wgtChat->setEnabled(false);
-    //    wgtVideo->setEnabled(false);
-    //    wgtSettings->setEnabled(false);
-    //    qDebug() << '0';
-    //    break;
-    //case 1:
-    //    wgtSerial->setEnabled(false);
-    //    wgtChat->setEnabled(true);
-    //    wgtVideo->setEnabled(false);
-    //    wgtSettings->setEnabled(false);
-    //    qDebug() << '1';
-    //    break;
-    //case 2:
-    //    wgtSerial->setEnabled(false);
-    //    wgtChat->setEnabled(false);
-    //    wgtVideo->setEnabled(true);
-    //    wgtSettings->setEnabled(false);
-    //    qDebug() << '2';
-    //    break;
-    //case 3:
-    //    wgtSerial->setEnabled(false);
-    //    wgtChat->setEnabled(false);
-    //    wgtVideo->setEnabled(false);
-    //    wgtSettings->setEnabled(true);
-    //    qDebug() << '3';
-    //    break;
-    //default:
-    //    qDebug() << 'F';
-    //    ;
-    //}
 }

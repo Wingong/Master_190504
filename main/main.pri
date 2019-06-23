@@ -1,6 +1,6 @@
 SOURCES +=\
-    $$PWD/main.cpp\
-    $$PWD/mainwindow.cpp\
+    $$PWD/main.cpp \
+    $$PWD/mainwindow.cpp
 
-HEADERS +=\
-    $$PWD/mainwindow.h\
+HEADERS += \
+    $$PWD/mainwindow.h

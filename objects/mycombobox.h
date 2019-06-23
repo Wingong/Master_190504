@@ -4,12 +4,24 @@
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
+#include <QMouseEvent>
 
 class MyComboBox : public QComboBox
 {
     Q_OBJECT
+signals:
+    void clicked(int index);
 private:
     QStringList comlist;
+protected:
+    virtual void mousePressEvent(QMouseEvent *e)
+    {
+        if(e->button() == Qt::LeftButton)
+        {
+            emit clicked(index);  //触发clicked信号
+        }
+        QComboBox::mousePressEvent(e);
+    }
 public:
     int index = -1;         //多选框序号
     MyComboBox(QWidget *parent)
