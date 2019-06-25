@@ -7,6 +7,7 @@
 #include <QQueue>
 #include <QRegion>
 #include <QByteArray>
+#include <QFile>
 #include "user.h"
 #include "serial.h"
 
@@ -20,10 +21,16 @@ public:
     int     sta = 0;
     u8      *ques;
     u8      *addr;
-    QByteArray &arr;
+    QByteArray arr;
+    QString *path;
+    QFile   *file;
+    QByteArray tosend;
     //QQueue<u8>  &queRecv;
     ThdImageSend(u8 *queSend, u8 *address, QByteArray &arri,QObject *parent);
+    ThdImageSend(QObject *parent);
     void    run();
+protected:
+    const int threhold = 0xBBF;
 signals:
     void    readOK();
 };

@@ -19,6 +19,7 @@
 #include <QVector>
 #include <QByteArray>
 #include <QString>
+#include <QRegExp>
 #include "myprogressdialog.h"
 #include "mycombobox.h"
 #include "serial.h"
@@ -59,6 +60,7 @@ public:
                              "AT+CWMODE=%1\r\n",
                              "AT+CWJAP=\"%1\",\"%2\"\r\n",
                              "AT+CIPSTA=\r\n"};
+    QRegExp rx = QRegExp("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}):([0-9]{1,5}),([0-1])");
     QByteArray      buffer;
 
     int             cmd = -1;
@@ -96,7 +98,7 @@ public:
 
     QTextEdit       *hist;
     QTextEdit       *tose;
-    QPushButton     *btnOnePush;
+    QPushButton     *btnOnePunch;
     QPushButton     *btnSend;
 
     Serial          *serial;

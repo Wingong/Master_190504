@@ -16,6 +16,7 @@
 #include "tcp.h"
 
 #include "thdimagedisp.h"
+#include "thdimagesend.h"
 
 namespace Ui {
 class WgtComm;
@@ -50,6 +51,7 @@ private slots:
     void on_LToggle(void);
     void on_Connected(void);
     void on_Disconnected(void);
+    void on_TcpReadyRead(void);
 
 private:
     QRegExp         rxIP = QRegExp("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
@@ -66,6 +68,7 @@ private:
     Tcp             *tcp;
 
     ThdImageDisp    *thImageDisp;
+    ThdImageSend    *thImageSend;
     XPackage::Type  mode = XPackage::NON;
     Ui::WgtComm *ui;
 };

@@ -36,7 +36,7 @@ WgtSettings::WgtSettings(QWidget *parent)
 
       hist(new QTextEdit(this)),
       tose(new QTextEdit(this)),
-      btnOnePush(new QPushButton("一键连接",this)),
+      btnOnePunch(new QPushButton("一键连接",this)),
       btnSend(new QPushButton("发送",this)),
 
       serial(new Serial),
@@ -146,7 +146,7 @@ WgtSettings::WgtSettings(QWidget *parent)
             qDebug() << arr.toHex();
         }
     });
-    connect(btnOnePush,&QPushButton::clicked,[=](){
+    connect(btnOnePunch,&QPushButton::clicked,[=](){
         if(serial->isOpen())
         {
             cmd = 11;
@@ -154,16 +154,18 @@ WgtSettings::WgtSettings(QWidget *parent)
         }
     });
     connect(this,&WgtSettings::next,[=](){
-        QRegExp rx("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}):([0-9]{1,5}),([0-1])");
         switch(cmd){
         case 11:
+            rx = QRegExp("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}):([0-9]{1,5}),([0-1])");
             rx.indexIn(tose->toPlainText());
+            qDebug() << rx.capturedTexts();
             serial->write(QString("AT+CIPSTART=\"TCP\",\"%1\",%2\r\n").arg(rx.cap(1)).arg(rx.cap(2).toInt()).toLatin1());
             break;
         case 12:
             serial->write(QString("AT+CIPMODE=%1\r\n").arg(rx.cap(3).toInt()).toLatin1());
             break;
         case 13:
+            qDebug() << rx.cap(3).toInt();
             if(rx.cap(3).toInt())
                 serial->write(QString("AT+CIPSEND\r\n").toLatin1());
             break;
@@ -468,6 +470,6 @@ void WgtSettings::resizeEvent(QResizeEvent *event)
     groupPort->move(50,height-165);
     hist->setGeometry(510,53,width-560,225);
     tose->setGeometry(510,293,width-560,100);
-    btnOnePush->setGeometry(width-130,410,80,25);
+    btnOnePunch->setGeometry(width-130,410,80,25);
     btnSend->setGeometry(width-250,410,80,25);
 }

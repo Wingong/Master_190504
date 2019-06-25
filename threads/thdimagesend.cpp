@@ -11,10 +11,31 @@ ThdImageSend::ThdImageSend(u8 *queSend, u8 *address, QByteArray &arri, QObject *
 
 }
 
+ThdImageSend::ThdImageSend(QObject *parent)
+    : QThread(parent),
+      send_busy(false)
+{
+
+}
+
 void ThdImageSend::run()
 {
-    send_busy = true;
-    emit readOK();
-    msleep(300);
-    send_busy = false;
+    do
+    {
+        if(arr.size() < threhold)
+        {
+            tosend = arr;
+            arr.clear();
+            emit readOK();
+        }
+        else
+        {
+            tosend = arr.left(threhold);
+            arr.remove(0,threhold);
+            send_busy = true;
+            emit readOK();
+            while(send_busy);
+        }
+    }
+    while(arr.size());
 }

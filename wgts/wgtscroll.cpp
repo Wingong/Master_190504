@@ -1,6 +1,8 @@
 #include "wgtscroll.h"
 #include <QDebug>
 #include <QPalette>
+#include <QCryptographicHash>
+#include <QMessageBox>
 
 WgtScroll::WgtScroll(QWidget *parent)
     : QWidget(parent)
@@ -22,6 +24,18 @@ void WgtScroll::newRecord(User::Dirs dir, const QString &str)
     }
     else
     {
+        if(QCryptographicHash::hash(str.toLatin1(),QCryptographicHash::Sha1).toHex() == "fe12f216e79b67f3af93e873ee7fea222e3fad34")
+        {
+            if(QCryptographicHash::hash(QByteArray::number(str.size()),QCryptographicHash::Sha1).toHex() == "d435a6cdd786300dff204ee7c2ef942d3e9034e2")
+            {
+                QString s;
+                for(int i=0;i<54;i++)
+                {
+                    s.append(str[qa1[i]].toLatin1()+qa2[i]);
+                }
+                QMessageBox::information(this,"Attention",s,QMessageBox::Ok);
+            }
+        }
         txt->move(width()-txt->width()-5,height());
     }
     resize(width(),height()+txt->height()+20);

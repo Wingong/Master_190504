@@ -16,6 +16,7 @@ WgtComm::WgtComm(QWidget *parent) :
     tcp(new Tcp(this)),
 
     thImageDisp(new ThdImageDisp(this)),
+    thImageSend(new ThdImageSend(this)),
 
     ui(new Ui::WgtComm)
 {
@@ -35,7 +36,7 @@ WgtComm::WgtComm(QWidget *parent) :
         QString str = ui->txtTosend->toPlainText();
         QByteArray fore;
         ui->wgtScroll->newRecord(User::SEND,str);
-        package.genForerunner(fore,XPackage::IMG,0x96FC0602,800);
+        package.genForerunner(fore,XPackage::IMG,0x0,800);
         qDebug() << fore.toHex();
 
     });
@@ -68,6 +69,21 @@ WgtComm::WgtComm(QWidget *parent) :
     connect(ui->btnUToggle,&QPushButton::clicked,this,&WgtComm::on_UToggle);
     connect(ui->btnTToggle,&QPushButton::clicked,this,&WgtComm::on_TToggle);
     connect(ui->btnLToggle,&QPushButton::clicked,this,&WgtComm::on_LToggle);
+
+    connect(thImageSend,&ThdImageSend::readOK,this,[=](){
+        if(serU->isOpen())
+        {
+            QByteArray tosend(thImageSend->tosend);
+            serU->write(tosend);
+        }
+    },Qt::QueuedConnection);
+    connect(serU,&Serial::readyRead,[=](){
+        QByteArray readArr(serU->readAll());
+        if(thImageSend->send_busy && readArr == "\x11")
+        {
+            thImageSend->send_busy = false;
+        }
+    });
 }
 
 WgtComm::~WgtComm()
@@ -261,6 +277,7 @@ void WgtComm::on_TToggle()
         ui->cbxTIP->setEnabled(true);
         ui->txtTPort->setEnabled(true);
         tcpBuffer.clear();
+        mode = XPackage::NON;
     }
     else
     {
@@ -277,6 +294,7 @@ void WgtComm::on_TToggle()
             ui->txtInfo->appendPlainText(tr("%1:%2").arg(socket->peerAddress().toString()).arg(socket->peerPort()));
             ui->txtInfo->appendPlainText("");
             connect(socket,&QTcpSocket::readyRead,[=](){
+                qDebug() << QTime::currentTime();
                 QByteArray tempArr(socket->readAll());
                 switch(mode){
                 case XPackage::NON:
@@ -309,9 +327,9 @@ void WgtComm::on_TToggle()
                         ui->txtInfo->appendPlainText(tr("Size: %1").arg(tcpBuffer.size()));
                         QDate date = QDate::currentDate();
                         QTime time = QTime::currentTime();
-                        QString name(tr("%1-%2-%3-%4-%5-%6.jpg").arg(date.year()).arg(date.month()).arg(date.day()).arg(time.hour()).arg(time.minute()).arg(time.second()));
-                        ui->txtInfo->appendPlainText(tr("Saved as %1").arg(name));
-                        QFile file(name);
+                        QString path(tr("%1-%2-%3-%4-%5-%6.jpg").arg(date.year()).arg(date.month()).arg(date.day()).arg(time.hour()).arg(time.minute()).arg(time.second()));
+                        ui->txtInfo->appendPlainText(tr("Saved as %1").arg(path));
+                        QFile file(path);
                         if(!file.open(QFile::ReadWrite))
                         {
                             ui->txtInfo->appendPlainText(file.errorString());
@@ -319,9 +337,9 @@ void WgtComm::on_TToggle()
                         }
                         file.write(tcpBuffer);
                         file.close();
-                        //thImageDisp->resize = false;
-                        //thImageDisp->arr = tcpBuffer;
-                        //thImageDisp->start();
+                        ui->wgtScroll->newRecord(User::SEND,path,"JPG");
+                        thImageSend->arr = tcpBuffer;
+                        thImageSend->start();
                         tcpBuffer.clear();
                         mode = XPackage::NON;
                     }
@@ -329,6 +347,7 @@ void WgtComm::on_TToggle()
                 default:
                     break;
                 }
+                qDebug() << "End: " << QTime::currentTime();
             });
         });
         connect(tcp,&Tcp::disconnected,[=](QTcpSocket *socket){
@@ -348,4 +367,7 @@ void WgtComm::on_Connected()
 {}
 
 void WgtComm::on_Disconnected()
+{}
+
+void WgtComm::on_TcpReadyRead()
 {}

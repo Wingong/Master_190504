@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
       wgtSettings(new WgtSettings(this)),
       wgtVideo(new WgtVideo(this))
 {
-    this->setWindowTitle("无人机应急通信基站 v0.6.1");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.6.2");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
     //this->setWindowIcon(QIcon(":/icons/icon.ico"));
