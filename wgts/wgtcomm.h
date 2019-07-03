@@ -33,6 +33,13 @@ public:
         T = 2,
         L = 4
     };
+    enum Mode
+    {
+        NON = 0,
+        IMG,
+        VOI,
+        DAT
+    };
 
     explicit WgtComm(QWidget *parent = 0);
     ~WgtComm();
@@ -42,6 +49,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event);
+    void sendIMG(QByteArray &arr);
 
 private slots:
     void on_CbxClicked(int index);
@@ -51,6 +59,7 @@ private slots:
     void on_LToggle(void);
     void on_Connected(void);
     void on_Disconnected(void);
+    void on_TcpRefreshed(void);
     void on_TcpReadyRead(void);
 
 private:
@@ -59,9 +68,10 @@ private:
     QByteArray      jpgend = "\xFF\xD9";
 
     QByteArray      tcpBuffer;
+    QByteArray      uartBuffer;
+    QByteArray      voiceBuffer;
 
-    QTcpServer      *server;
-    QTcpSocket      *socket = nullptr;
+    QTcpSocket      *currentSocket = nullptr;
     Serial          *serU;
     Serial          *serL;
     XPackage        package;
@@ -70,7 +80,10 @@ private:
     ThdImageDisp    *thImageDisp;
     ThdImageSend    *thImageSend;
     XPackage::Type  mode = XPackage::NON;
+    Mode            uartMode = NON;
     Ui::WgtComm *ui;
+
+    int             imgSize;
 };
 
 #endif // WGTCOMM_H

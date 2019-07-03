@@ -11,13 +11,9 @@
 #include <QTabWidget>
 #include <QSettings>
 #include "wgtserial.h"
-#include "wgtchat.h"
 #include "wgtcomm.h"
 #include "wgtsettings.h"
-#include "wgtespat.h"
 #include "wgtnet.h"
-
-#include "wgtvideo.h"
 
 class MainWindow : public QMainWindow
 {
@@ -37,11 +33,9 @@ public:
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
     WgtSerial   *wgtSerial;     //串口窗体
-    WgtChat     *wgtChat;       //通信窗体
     WgtComm     *wgtComm;      //视频窗体
     WgtNet      *wgtNet;
     WgtSettings *wgtSettings;   //设置窗体（无内容）
-    WgtVideo    *wgtVideo;
 
 public slots:
     void sltTab(void);          //切换标签：槽函数

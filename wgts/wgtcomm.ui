@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowstretch="41,13" columnstretch="8,3">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="3,1">
    <property name="leftMargin">
     <number>10</number>
    </property>
@@ -24,17 +24,86 @@
     <number>10</number>
    </property>
    <property name="bottomMargin">
-    <number>10</number>
+    <number>5</number>
    </property>
-   <property name="spacing">
-    <number>10</number>
-   </property>
-   <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="5,0,1">
-     <property name="spacing">
-      <number>10</number>
-     </property>
-     <item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="4,0,1,0" columnstretch="3,1">
+     <item row="1" column="0">
+      <widget class="WgtScroll" name="wgtScroll" native="true"/>
+     </item>
+     <item row="3" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnHClear">
+         <property name="text">
+          <string>清除历史</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSClear">
+         <property name="text">
+          <string>清除发送</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnFSend">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>发送文件</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSend">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>发送</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="labTim_2">
+         <property name="text">
+          <string>历史信息</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="txtInfo">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
       <widget class="QScrollArea" name="scrollArea">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -472,7 +541,7 @@
           <x>0</x>
           <y>0</y>
           <width>549</width>
-          <height>289</height>
+          <height>258</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -490,33 +559,45 @@
        </widget>
       </widget>
      </item>
-     <item>
-      <widget class="WgtScroll" name="wgtScroll" native="true"/>
-     </item>
-     <item>
+     <item row="2" column="0">
       <widget class="QPlainTextEdit" name="txtTosend"/>
      </item>
+     <item row="2" column="1">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>温湿度</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="txtTR">
+         <property name="text">
+          <string>23℃, 60%</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>PM2.5浓度</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="txtPM">
+         <property name="text">
+          <string>45.5μg/m³</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
-   <item row="0" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <property name="spacing">
-      <number>5</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="labTim_2">
-       <property name="text">
-        <string>历史信息</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPlainTextEdit" name="txtInfo"/>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="17,17,19">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="6,10,7">
      <property name="spacing">
       <number>10</number>
      </property>
@@ -581,7 +662,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>95</y>
+          <y>100</y>
           <width>70</width>
           <height>25</height>
          </rect>
@@ -593,8 +674,8 @@
        <widget class="QPushButton" name="btnUToggle">
         <property name="geometry">
          <rect>
-          <x>90</x>
-          <y>95</y>
+          <x>100</x>
+          <y>100</y>
           <width>70</width>
           <height>25</height>
          </rect>
@@ -613,8 +694,8 @@
        <widget class="QPushButton" name="btnTToggle">
         <property name="geometry">
          <rect>
-          <x>90</x>
-          <y>95</y>
+          <x>230</x>
+          <y>60</y>
           <width>70</width>
           <height>25</height>
          </rect>
@@ -628,7 +709,7 @@
          <rect>
           <x>30</x>
           <y>20</y>
-          <width>131</width>
+          <width>191</width>
           <height>25</height>
          </rect>
         </property>
@@ -670,17 +751,212 @@
          <rect>
           <x>60</x>
           <y>60</y>
-          <width>101</width>
+          <width>51</width>
           <height>25</height>
          </rect>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
        <widget class="QPushButton" name="btnTRefresh">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>95</y>
+          <x>230</x>
+          <y>20</y>
           <width>70</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>刷新</string>
+        </property>
+       </widget>
+       <widget class="MyComboBox" name="cbxTCon">
+        <property name="geometry">
+         <rect>
+          <x>45</x>
+          <y>100</y>
+          <width>175</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="editable">
+         <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labTCon">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>60</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>连接</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnTDiscon">
+        <property name="geometry">
+         <rect>
+          <x>230</x>
+          <y>100</y>
+          <width>70</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>断开</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labTCount">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>60</y>
+          <width>60</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>连接数</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="txtTCount">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>60</y>
+          <width>50</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="fraLoRa">
+       <property name="title">
+        <string>LoRa配置</string>
+       </property>
+       <widget class="QLabel" name="labLPort">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>40</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>串口</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labLBaud">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>60</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>波特率</string>
+        </property>
+       </widget>
+       <widget class="MyComboBox" name="cbxLPort">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>20</y>
+          <width>81</width>
+          <height>25</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="MyComboBox" name="cbxLBaud">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>60</y>
+          <width>81</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="currentText">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnLToggle">
+        <property name="geometry">
+         <rect>
+          <x>75</x>
+          <y>100</y>
+          <width>60</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>打开</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="txtTim">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>60</y>
+          <width>51</width>
+          <height>25</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labTim">
+        <property name="geometry">
+         <rect>
+          <x>150</x>
+          <y>20</y>
+          <width>51</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>倒计时</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnLListen">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>140</x>
+          <y>100</y>
+          <width>60</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>监听</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnLRefresh">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>60</width>
           <height>25</height>
          </rect>
         </property>
@@ -690,228 +966,7 @@
        </widget>
       </widget>
      </item>
-     <item>
-      <widget class="QGroupBox" name="fraTcp_2">
-       <property name="title">
-        <string>文本操作</string>
-       </property>
-       <widget class="QPushButton" name="btnSend">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>100</x>
-          <y>20</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>发送</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="btnFSend">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>发送文件</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="btnHClear">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>清除历史</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="btnSClear">
-        <property name="geometry">
-         <rect>
-          <x>100</x>
-          <y>60</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>清除发送</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="btnFSend_3">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>100</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>发送文件</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="btnSend_3">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>100</x>
-          <y>100</y>
-          <width>80</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>发送</string>
-        </property>
-       </widget>
-      </widget>
-     </item>
     </layout>
-   </item>
-   <item row="1" column="1">
-    <widget class="QGroupBox" name="fraLoRa">
-     <property name="title">
-      <string>LoRa配置</string>
-     </property>
-     <widget class="QLabel" name="labLPort">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>40</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>串口</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="labLBaud">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>60</y>
-        <width>60</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>波特率</string>
-      </property>
-     </widget>
-     <widget class="MyComboBox" name="cbxLPort">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>20</y>
-        <width>81</width>
-        <height>25</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="MyComboBox" name="cbxLBaud">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>60</y>
-        <width>81</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="editable">
-       <bool>true</bool>
-      </property>
-      <property name="currentText">
-       <string/>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnLToggle">
-      <property name="geometry">
-       <rect>
-        <x>75</x>
-        <y>95</y>
-        <width>60</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>打开</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="txtTim">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>60</y>
-        <width>51</width>
-        <height>25</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="labTim">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>20</y>
-        <width>51</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>倒计时</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnLListen">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>140</x>
-        <y>95</y>
-        <width>60</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>监听</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnLRefresh">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>95</y>
-        <width>60</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>刷新</string>
-      </property>
-     </widget>
-    </widget>
    </item>
   </layout>
  </widget>

@@ -17,9 +17,13 @@ public:
     Tcp();
     Tcp(QWidget *parent);
     bool listen(QString &ip, int port);
+    void close();
+    void discon(QTcpSocket *socket);
+    QVector<QTcpSocket *>socketList;
 signals:
     void newConnection(QTcpSocket *socket);
     void disconnected(QTcpSocket *socket);
+    void cleared();
 };
 
 #endif // TCP_H

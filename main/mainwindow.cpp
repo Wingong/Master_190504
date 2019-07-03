@@ -12,33 +12,24 @@ MainWindow::MainWindow(QWidget *parent)     //初始化成员变量
       wgtTab(new QTabWidget(this)),
       settings(new QSettings("settings.ini",QSettings::IniFormat)),
       wgtSerial(new WgtSerial(this)),
-      wgtChat(new WgtChat(this)),
       wgtComm(new WgtComm(this)),
       wgtNet(new WgtNet(this)),
-      wgtSettings(new WgtSettings(this)),
-      wgtVideo(new WgtVideo(this))
+      wgtSettings(new WgtSettings(this))
 {
-    this->setWindowTitle("无人机应急通信基站 v0.6.2");    //设置窗体标题
+    this->setWindowTitle("无人机应急通信基站 v0.6.3");    //设置窗体标题
     this->setMinimumHeight(280);                //设置窗体最小宽、高
     this->setMinimumWidth(380);
     //this->setWindowIcon(QIcon(":/icons/icon.ico"));
 
     wgtTab->addTab(wgtSerial,"串口助手");  //添加标签窗体
-    wgtTab->addTab(wgtChat,"传输");
-    wgtTab->addTab(wgtComm,"视频");
+    wgtTab->addTab(wgtComm,"通信");
     wgtTab->addTab(wgtNet,"网络助手");
     wgtTab->addTab(wgtSettings,"设置");
-    wgtTab->addTab(wgtVideo,"视频");
     QPalette pal(wgtSerial->palette());         //设置色盘
     pal.setColor(QPalette::Background,0xf0f0f0);
     wgtSerial->setAutoFillBackground(true);     //上底色
     wgtSerial->setPalette(pal);
     wgtSerial->show();
-    pal = wgtChat->palette();
-    pal.setColor(QPalette::Background,0xf0f0f0);
-    wgtChat->setAutoFillBackground(true);
-    wgtChat->setPalette(pal);
-    wgtChat->show();
     pal = wgtComm->palette();
     pal.setColor(QPalette::Background,0xf0f0f0);
     wgtComm->setAutoFillBackground(true);
@@ -83,12 +74,10 @@ MainWindow::~MainWindow()
     qDebug() << "Des";
 
     delete  wgtSerial;
-    //delete  wgtChat;
     //delete  wgtComm;
     //delete  wgtSettings;
     delete  wgtTab;
     wgtSerial   = nullptr;
-    //wgtChat     = nullptr;
     //wgtComm    = nullptr;
     //wgtSettings = nullptr;
     wgtTab      = nullptr;
@@ -104,7 +93,6 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         if(msg->message == WM_DEVICECHANGE && msg->wParam >= DBT_DEVICEARRIVAL)
         {
             wgtSerial->sltRefresh();
-            wgtChat->sltRefresh();
             wgtComm->refresh(WgtComm::X | WgtComm::L);
             wgtSettings->sltRefresh();
         }
@@ -124,7 +112,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 void MainWindow::sltTab(void)
 {
     wgtTab->currentWidget()->setEnabled(true);
-    for(int i=0;i<5;i++)
+    for(int i=0;i<wgtTab->count();i++)
     {
         if(i != wgtTab->currentIndex())
         {

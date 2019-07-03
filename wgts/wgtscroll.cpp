@@ -46,7 +46,7 @@ void WgtScroll::newRecord(User::Dirs dir, QString &path, const char *format)
 {
     ChatDialog *pic(new ChatDialog(dir,path,format,this));
     pic->show();
-    if(path == User::RECV)
+    if(dir == User::RECV)
     {
         pic->move(20,height());
     }

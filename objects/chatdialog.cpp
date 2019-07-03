@@ -52,23 +52,22 @@ ChatDialog::ChatDialog(User::Dirs dir, QByteArray &image, const char *format, QW
     : QLabel(parent),
       dir(dir)
 {
-    //setAlignment(Qt::AlignCenter);
-    //QImage image;
-    //image.load(path,format);
-    //QPixmap pm = QPixmap::fromImage(image);
-    //if(pm.width()>pm.height())
-    //    pm = pm.scaled(200,200,Qt::KeepAspectRatioByExpanding);
-    //else
-    //    pm = pm.scaled(200,200,Qt::KeepAspectRatio);
-    //setPixmap(pm);
-    //qDebug() << pm.size();
-    //if(dir == User::RECV)
-    //    setStyleSheet("QLabel{border-radius:4px;border:1px solid #d0d0d0;background-color:#f0f0f0}");
-    //else
-    //    setStyleSheet("QLabel{color:white;border-radius:4px;border:1px solid #d0d0d0;background-color:#55bbff}");
-    //resize(pm.width()+8,pm.height()+8);
-    //qDebug() << size();
-    //connect(this,SIGNAL(dblclick(QString&)),qobject_cast<WgtComm*>(parent->parent()->parent()->parent()),SLOT(on_ImaClicked(QString&)));
+    QImage img = QImage::fromData(image,format);
+    setAlignment(Qt::AlignCenter);
+    QPixmap pm = QPixmap::fromImage(img);
+    if(pm.width()>pm.height())
+        pm = pm.scaled(200,200,Qt::KeepAspectRatioByExpanding);
+    else
+        pm = pm.scaled(200,200,Qt::KeepAspectRatio);
+    setPixmap(pm);
+    qDebug() << pm.size();
+    if(dir == User::RECV)
+        setStyleSheet("QLabel{border-radius:4px;border:1px solid #d0d0d0;background-color:#f0f0f0}");
+    else
+        setStyleSheet("QLabel{color:white;border-radius:4px;border:1px solid #d0d0d0;background-color:#55bbff}");
+    resize(pm.width()+8,pm.height()+8);
+    qDebug() << size();
+    connect(this,SIGNAL(dblclick(QString&)),qobject_cast<WgtComm*>(parent->parent()->parent()->parent()),SLOT(on_ImaClicked(QString&)));
 }
 
 void ChatDialog::mouseDoubleClickEvent(QMouseEvent *event)
